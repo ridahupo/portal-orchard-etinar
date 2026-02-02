@@ -1,2074 +1,337 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Pólizas Etinar - Orchard Assistance</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --green: #2d5016;
-            --navy: #2c3e50;
-            --red: #dc3545;
-            --yellow: #ffc107;
-            --green-light: #28a745;
-        }
-        
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-        }
-        
-        .login-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 50px 40px;
-            max-width: 420px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-        
-        .logo { text-align: center; margin-bottom: 30px; }
-        .logo img { height: 60px; }
-        
-        h1 { font-size: 28px; text-align: center; color: var(--navy); margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #6c757d; margin-bottom: 30px; font-size: 14px; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--navy); }
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e1e4e8;
-            border-radius: 10px;
-            font-size: 15px;
-        }
-        .form-group input:focus { outline: none; border-color: var(--green); }
-        
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--green) 0%, #4a7c2c 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-login:hover { opacity: 0.9; }
-        
-        .error { background: #fee; color: var(--red); padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        
-        .dashboard { display: none; }
-        .dashboard.active { display: block; }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--navy) 0%, #34495e 100%);
-            color: white;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .navbar-brand { display: flex; align-items: center; gap: 15px; }
-        .navbar-brand img { height: 45px; }
-        .navbar-title { font-size: 24px; font-weight: 700; }
-        
-        .btn-logout {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 30px 40px; }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-left: 4px solid var(--green);
-        }
-        .stat-card.alert { border-left-color: var(--red); }
-        .stat-card.warning { border-left-color: var(--yellow); }
-        
-        .stat-label { font-size: 13px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
-        .stat-value { font-size: 36px; font-weight: 700; color: var(--navy); }
-        .stat-desc { font-size: 13px; margin-top: 8px; color: #6c757d; }
-        
-        .filters {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .filter-group label { font-size: 13px; font-weight: 600; color: #6c757d; margin-bottom: 6px; display: block; }
-        .filter-group select, .filter-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e1e4e8;
-            border-radius: 8px;
-        }
-        
-        .table-section {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            overflow-x: auto;
-        }
-        
-        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-export {
-            background: var(--green);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #f8f9fa; }
-        th {
-            padding: 15px 12px;
-            text-align: left;
-            font-weight: 700;
-            color: var(--navy);
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-        td { padding: 16px 12px; border-bottom: 1px solid #e1e4e8; }
-        tbody tr:hover { background: #f8f9fa; }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge.vencida { background: #fee; color: var(--red); }
-        .badge.proxima { background: #fff3cd; color: #856404; }
-        .badge.activa { background: #e7f7e7; color: var(--green-light); }
-        
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot.red { background: var(--red); }
-        .dot.yellow { background: var(--yellow); }
-        .dot.green { background: var(--green-light); }
-        
-        .tag {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .tag.confianza { background: #e3f2fd; color: #1976d2; }
-        .tag.equisuiza { background: #f3e5f5; color: #7b1fa2; }
-        
-        @media (max-width: 768px) {
-            .navbar { flex-direction: column; gap: 15px; }
-            .stats { grid-template-columns: 1fr; }
-            .filters-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Pólizas - Orchard Assistance</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a4d2e;--secondary:#4f772d;--accent:#90a955;--danger:#d32f2f;--warning:#f57c00;--success:#388e3c;--bg:#fafafa;--card:#fff;--text:#1e1e1e;--text-muted:#757575;--border:#e0e0e0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#f5f7f9 0%,#e8ebe8 100%);color:var(--text);line-height:1.6}
+.login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,rgba(26,77,46,0.03) 0%,rgba(79,119,45,0.03) 100%)}
+.login-box{background:var(--card);padding:60px 50px;border-radius:24px;box-shadow:0 20px 60px rgba(26,77,46,0.08),0 0 0 1px rgba(26,77,46,0.04);max-width:460px;width:100%;backdrop-filter:blur(10px)}
+.logo-container{text-align:center;margin-bottom:40px}
+.logo-container img{height:70px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.06))}
+.login-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--primary);text-align:center;margin-bottom:12px;letter-spacing:-0.02em}
+.login-subtitle{text-align:center;color:var(--text-muted);font-size:15px;margin-bottom:36px;font-weight:500}
+.input-group{margin-bottom:24px}
+.input-label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;letter-spacing:0.01em}
+.input-field{width:100%;padding:16px 18px;border:2px solid var(--border);border-radius:12px;font-size:15px;font-family:'Inter',sans-serif;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);background:var(--bg)}
+.input-field:focus{outline:none;border-color:var(--primary);background:var(--card);box-shadow:0 0 0 4px rgba(26,77,46,0.08)}
+.btn-login{width:100%;padding:18px;background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:12px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(26,77,46,0.2)}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,77,46,0.3)}
+.btn-login:active{transform:translateY(0)}
+.error-msg{background:linear-gradient(135deg,#ffebee 0%,#ffcdd2 100%);color:#c62828;padding:16px;border-radius:12px;margin-bottom:24px;font-size:14px;font-weight:500;border-left:4px solid #d32f2f;display:none}
+.dashboard{display:none}
+.dashboard.active{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.nav{background:linear-gradient(135deg,var(--primary) 0%,#0f2818 100%);padding:24px 40px;box-shadow:0 4px 24px rgba(0,0,0,0.12);position:sticky;top:0;z-index:100}
+.nav-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.nav-brand{display:flex;align-items:center;gap:20px}
+.nav-brand img{height:50px;filter:brightness(0) invert(1)}
+.nav-title{color:#fff;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;letter-spacing:-0.01em}
+.nav-actions{display:flex;align-items:center;gap:24px}
+.user-badge{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);padding:10px 20px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,0.2)}
+.btn-logout{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:10px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s}
+.btn-logout:hover{background:rgba(255,255,255,0.3)}
+.main{max-width:1400px;margin:0 auto;padding:40px 40px 80px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-bottom:40px}
+.metric-card{background:var(--card);padding:32px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,0.04);border:1px solid var(--border);position:relative;overflow:hidden;transition:all 0.3s ease}
+.metric-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--primary),var(--secondary))}
+.metric-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.08)}
+.metric-card.alert::before{background:linear-gradient(180deg,var(--danger),#e64a19)}
+.metric-card.warning::before{background:linear-gradient(180deg,var(--warning),#ff9800)}
+.metric-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px}
+.metric-value{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;color:var(--text);line-height:1}
+.metric-desc{font-size:14px;color:var(--text-muted);margin-top:10px;font-weight:500}
+.section{background:var(--card);border-radius:20px;padding:32px;margin-bottom:32px;box-shadow:0 4px 16px rgba(0,0,0,0.04);border:1px solid var(--border)}
+.section-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:28px;letter-spacing:-0.01em}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:20px}
+.filter-group label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px}
+.filter-select,.filter-input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;background:var(--bg);transition:all 0.3s}
+.filter-select:focus,.filter-input:focus{outline:none;border-color:var(--primary);background:var(--card)}
+.btn-clear{background:var(--bg);border:2px solid var(--border);padding:12px 24px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text);transition:all 0.3s}
+.btn-clear:hover{background:var(--border)}
+.table-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.btn-export{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border:none;padding:14px 28px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s;box-shadow:0 4px 12px rgba(26,77,46,0.2)}
+.btn-export:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(26,77,46,0.3)}
+.table-container{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead{background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);position:sticky;top:0}
+th{padding:18px 16px;text-align:left;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text);border-bottom:2px solid var(--border)}
+td{padding:20px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr{transition:background 0.2s}
+tbody tr:hover{background:rgba(26,77,46,0.02)}
+.status-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.04em}
+.status-badge.vencida{background:linear-gradient(135deg,#ffebee,#ffcdd2);color:#c62828}
+.status-badge.proxima{background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:#e65100}
+.status-badge.activa{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:#2e7d32}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot.red{background:#d32f2f}
+.dot.yellow{background:#f57c00}
+.dot.green{background:#388e3c}
+.tag{display:inline-block;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:0.04em}
+.tag.confianza{background:#e3f2fd;color:#1565c0}
+.tag.equisuiza{background:#f3e5f5;color:#6a1b9a}
+.tag.chubb{background:#fff3e0;color:#e65100}
+.money{font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums}
+@media(max-width:768px){
+.nav{padding:20px}
+.nav-content{flex-direction:column;gap:16px}
+.main{padding:24px 16px}
+.metrics{grid-template-columns:1fr}
+.filters{grid-template-columns:1fr}
+.table-container{font-size:12px}
+th,td{padding:12px 8px}
+}
+</style>
 </head>
 <body>
-    <!-- Login Page -->
-    <div id="loginPage" class="login-page">
-        <div class="login-card">
-            <div class="logo">
-                <svg width="200" height="60" viewBox="0 0 500 120">
-                    <circle cx="40" cy="40" r="35" fill="#2d5016"/>
-                    <path d="M40 15 Q25 20 25 35 Q25 45 30 50 Q35 55 40 55 Q45 55 50 50 Q55 45 55 35 Q55 20 40 15 Z" fill="white"/>
-                    <rect x="38" y="50" width="4" height="20" fill="white"/>
-                    <text x="90" y="45" font-family="Arial" font-size="18" font-weight="700" fill="#2c3e50">ORCHARD ASSISTANCE S.A.</text>
-                </svg>
-            </div>
-            <h1>Portal de Pólizas</h1>
-            <p class="subtitle">Orchard Assistance S.A.</p>
-            <div id="error" class="error" style="display:none;"></div>
-            <form onsubmit="return login(event)">
-                <div class="form-group">
-                    <label>Usuario</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn-login">Iniciar Sesión</button>
-            </form>
-        </div>
-    </div>
+<div id="loginPage" class="login-wrapper">
+<div class="login-box">
+<div class="logo-container">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAB9KADAAQAAAABAAAB9AAAAAB3bs6AAABAAElEQVR4Ae3dCYAU5Z338eep7p4LmOFSEFCuASQgh3hEowbjFQ8ONcbNsYkxx2YTk42ba7N5E0021+6bYzeb883m2Lg5NmoiqDk8SdQYNSqnog6nHILINcAc3V3P+/tXdw89w8wwIAo634Kerq566vrU8a/nqaeqnKNBAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAgV4t4Hv10ne/8GYT6RPXnuXq0xk3OGp2S7c84PZYN31Csb9924cGAQQQQACBwybQGwN65Ga6GtfoWlyFS9elXNWO+912rYHyoBxVn+aOyVS4YcG7VbnIVVZH7i2K70cHF8/Ptrindm11O2qHuZHZvNvTdI/b0GH4w7ZCmTACCCCAQO8USPW6xT7NVdWm3KSa6tQZfauiY306nFIxwm1tWaMQb0F9kquom+6OzaTdWVEUnemjaFCF8zOcdxcpoF/pXTTQu/B48yNuQ82Y6OqMDxNTw11D6xjX6lYnOfd2pEPOd312V2no512+XQ9+IIAAAgggcAgFekNAt2LzvbnvdS5XMcHVpp27NsTxEyFEx0Vp96nKse7paJxrTVe6fhkffcw7/2UNNjzyrp+Gv0CB/WQVZ6QUmre7KOysHOO2RN4fH4L7QCoVTar0YVXLKrdZab27wmXcE8laCpkx7m9q+qSHVI2Nn29e6bLt5iVJwh8EEEAAAQRevIDi2qu6iere4Ebv2OE2aimzCs2puj6u2re6Kl0EtyA/3vk4dj46JQp+fmXe3RLS8QIF7jkqam/13o9WmlEK0Zba/uo7vDZy0Yn6UeVdvCK46C/Bx3fu8G5F/5muX8i5gX6rG+nPclu2ZV1DiF1THMJRiuRV1We52qZIefV1GludTg4edU3JmJMR8wcBBBBAAIGDF3i1BnQreQjuNFepllkD+ketOR8vTnkF29ZoYi4bP6Ai9RHB+wGR830V2YMCeKWC9CwXIhWtu0a1v6Bc+tAQggVdKy6v1ceiepPS55R+qg/RWO/dmZZuYAib43R0UpRyIzS6M13GZ/tXxB/RXOQiH1+aCW5NlIkuq4jiW9MjXb845fLbZri7FdStkh0NAggggAACL0rg1RfQZ7p0beROTAWXidOuJRfcX7SQd2VC9LwCcR8F5DiT8q93yn0rGPdXkbk1OR/CarU+pVz5JQrCg/StTknfPkkYV9RWd+uwSgF7tw/+QrVn1VWl7X5K7MIUle0P0u/Llb5R/Y6OQvQGlQTklH64iuzP13TOS4foap0M1IS8+0eVEySXPOrOcAN82tWpZt46t8DS0yCAAAIIIHBgAq++a+iDXFVNjf9376PPKXifplx0VoH7bAXaAfqt4KyP9/X6rtZHnezjlXl3eX2UYfdD1U2Xx62zQriisdqjYnC3xP3VQx+ncwbX1yvIK2lOQ0xVt5OVYIA+fZXOrpdP0zX489XvKLXrZMFNUT8L+uod0j7lfp9b5fbU1EdXRyl/XkVreLhlrWtWWhoEEEAAAQQOSODVFdBnuLpB/awoXbXXVXauQFzrI3eeRHKKoFX6tqLzPQqnGQVldUp+KxOtVM4r9+6HWvBWdwvkFnWz+iiTr/xzKbg7t1bd9ijtQI1hpwVzJa5QtzoNUlMYTLfE2eCqUKfxqSK8z6j9JI3Viu2TcK6vx9I+PFIxyh2Xity7dV5w3fYFSaU6JaFBAAEEEEDgwAQseL06mhkuU9ffnRcqUq9TgN2kimg/VugMykHXKJA+l7QXcs3PKcBawLXgbsXbrQrGalSdzYU9KlS36m9WtJ7XR7XafbVT4bvGYde69Qk7NdJdll5dNyn5c+q+WWm36XuHPuqXBHQbz26NKWsDq0kCuZ1GJNMLbpuPo6vTkf+m+vbRve1tFeT6naNcfDGZDUiDAAIIIIDA/gResdfQB57qahUpM401CqILkuBck/LRFS5W1TTnJ7koNT6JnfbHuwlFCOXSw2h9mgrF6K7SuhcDbrMC9A7lz5OcvAZrVOS1onYrXrfgv1OfnLLz/XSSUKkgXKP+r0kK3O1WtqCi8hA2qZvqvyWV6o5Sv11qH2rdNKxmw8K5nTKEWG1vV/cqRX07Efh+ZXUYE85xUSblJvjYKta5X+hDgwACCCCAQI8EXqlF7qma492VUZW7oCpyQ2vGubgp57ZUVYa1WuonFSjHKqiP07cF0H0aBVMrZq9WUC/112/VS49chYJ6owK2FbFbMLYEVoxeKslQfTavHL/vqy4ZBXGbgpIlJwH9lNqCeIVGO0yDWvG65bStvy6la+z6k5w8eNeijjqpcNs1/r76Pl3TPVYnJON0+5yu//vmppVhnoajQQABBBBAoEcCr6gcuuXKt1YrlK6zW8ei47SEf6sIeYzyz7cN7BP/XmXnt6k2+7WRC7q/PAmkpYBdwFBAtcCq4GkV4hRT9d/SBV0rT4K8FZeHTboGP1n9hxVK3tVWGJcqwHkFbeWv7VnuhWx9k9q2qH9fparVt50gWbtaXavS2YlAs9qVQy9MTn/ter5F9kr9eUJtE9RroL6Hq/sF+mzVBJSMBgEEEEAAgZ4LvFJy6Kn+57mpyjdfWJVyJ/WpcVu3Nob5lVVBNdMjK9KeqTg9WwF3XcrFy+PgT1CAPlZB0mJnx6bUza6f66EyFnstx668tdMUnCqx6d50i/zqltffvMKrFak/r24qjld/b7XikxQbFHuXF4Kzgn0hgCe5efW3p8rZDKQVne3EycYY67euFKhSnW53U6ej1C2pMa/ulptPxSH+VYjDN5tX67q/bsFzw1Ur/2idgGxMrssrCQ0CCCCAAAL7ChzJOXSvB8NU9cu7mlRfPVc9pD6gHO2pCnwtodJNHpCOb87n3W+jdJimxZqooNpHZyf/ppy7mmIA3Xd5C12U49Z4VG/O4q21Jte4IwVau26eTfLgitTqYRXf7Ha2LaoIt1YBuEZpqhTck4E0TRXH+1M0TKH2eiGgqwa8rr27UKF0sdLbSZNNwzLpdgKh+9aTCndN6lirdsvJ2y1ulrPfquvnP94W3DK1+/6Rm+Wro/pQFf91u3P3qhsNAggggAACnQocsQG9/7nu9bqH/DWKnANVRj5L0XC82msUBHfq83bdXTZdYfthBcm/UZDUNWmFRVeo5KZYWAignS5yEl0tF12ZhPNC7txy6EluXAHWKrwlOXaltKfHqQmW2x+o7pYLLzbBnhinW+OS6+fKWSe15S14b1d3q1hnFeEKTXFuNO60ldfrv93m1mg9dRleRfDBrqnbQ292aHzjaivcpug8BfgQabn9RJ9zfymOiS8EEEAAAQQ6FSiGmk77HbaOdq089PM3qIz6XAXrtKLees2Mgqk90CWkFPTsqrblfi3w2jLYLWV91eb17PRsFOm+7542SYDVUEFF2lZJzW5P88lrU1vVLXncq35bsXuLPlaxTc9wt8mHnfpjOXq7/9xy1/a4WKvhbref6fq4bnezB8qWGrVp3Ja111/9UCQv9VQHNVbDzjWrfatabtaww/Mh/E6Jtmy/y81PEiTp+IMAAggggMC+AkfcNfR+M93xqSp3pXLgsxT8VINNby23p6uptnly7Vp/koCYfFsMTALjNv20HK7FzLyl23dRu+iSjK30RycPkZ70VrhNzU4WFJgVaZP72MNGjd4CvHLX9i/pp6Bd+KHp7lY/C/hKowfRJLl3zUmpSWYzmY7F76RrMmRhZKUZsNr1dnKgl7/4kUr0xLbG8Avd+BbrGrrNDw0CCCCAAAKdChxJRe4Kai5Kp6PL1fJBRb2his6b1M0CapMCnRVjtwvUSVh1oVXF2M2l7K6G7XnuvJzEpmJzEJJpWJG8ivcVzYM9RMY/qzbLfSc12JXUSgSssdry9pAay4rb0HZG0arr7WkNm/y2bm1NMsIk6CcV2QvzXxrQhtd/9dFfC967NZ1z+/eN4sjF63Nnu6U2HvXLZXNuQ0XKDdm+wC1sGzctCCCAAAK9WuBICOiKUSpPP0dvQku586LYXa6QdrRFVjVD7I8aPcHNulg1tiR58sd6qHOrQuRAtRRjaDKc9SpvSh3bhivvqXaLrZY7Lp0wlKKxpbfJHqPR221phSJ+dUna9d5UvcIlrWhutd5165nNTrCieUV4u1pe6GJfliVPvtWWVLrrYk6SdCHYdfx+GuckTedUXUt/QU+UW+aiOK968ht8Jp6nl72cpri/aO8UbOw0CCCAAAK9VeCwB/Tas90pukK9VW8f25ZWkFIgO06xTkXXpZiqVRNUY9xqgnsVvyeZ1NLqUmq7/UuvKC11KQXO0m/7TgKo3f+t56qXd29r1wQLZwMWu4tdiwFX3evU1YraLYxv1bf1KQRvtSm91XovNknlNrutTbeqFcakXppuWU33tmmVhun4nSyTTc1ue6tWjl+vX3d6uUuYqbMEq7i3Th227J1mx+H5jQACCCDQGwWsaPmwNopvI1OZ6E2ZyI3XjNjb0CwYdpynVnXIqbP9s4BaaJLgmBSxV6nr3u6l/uXf+4yyvGep3U4HCo3idtv4ki7JLW4KrXt72NV1y7HbiUZSPqD2pH9pbPZdmMXyLt236zRA96krcNugFsALpRO6ay1p7LnzehtcOFOTbtVrV1VJkAYBBBBAAIHCA08Ol0PKzdTjVlNusyLXO/Xs9bMVFpNa7B1nSEXayWNWlVuNg+XdC+HTYmUx6PYgWluR+otpkiy8twpz1miWk5e5FIrgC900+0kJQjFB27ylrIdF9p41Gq6QPrmPXYPZk+3sRMGWOrkvXottT5fbmKtMSi56NlpSIYAAAgi8qgVeXJB7ETQDztVjY3x0kY/DON3NPUUB0q6X71AA03vG20c/BfBCUXnh9rH2PTWQ5aC7m5X99e9u2A79yqdj7XbN3Z7TnnQ/FNPRmOzJcrpNztvtczUK5imF81oFcF0/L1YOTBz807ufC/ZiFxoEEEAAAQReZK714AEtFzpK2c4rVJI9Vu0WEq3bYMvKdgzPZYHysJ2AdFhUy0Nbrnn/zX5ONroYgRHY0+ast7lYLfrtKg6w58JbnYH1+RDfpOfJ2aUIGgQQQAABBA5PQK89y9Wr5vYIhaqyRj/a/S7r1YNWVXyzGvAvYgw9mEj7JDmFW3s2uz34xiqwHZrGgncyLt0uZ/fgqxRAP1/I+/ijivBNyqfrhWyucWfsFh+aCTIWBBBAAIFXg8DhyPGmMpnoQgWltyggWm1xexDMi58PK5J+sdfJD2SN6q0wuhSQFCgo8B6yRre7xXrJjGK3as97vaBFb5NTjG/Vs+xq9Fm57V73wCGbGCNCAAEEEHjVCPSs2PhQLu5MPXvFu1GKhBM1Wns2uoqU7RYv+7yIRgH2RQx9oIMqE528Tc1OROxiwaFsbHwao97ephfOaMQGs1kLV6eygBMO5YQYFwIIIIDAq0eg9CCVl2+JVrtQVR/Wq766PflsgHLnuse6rXLZQYfHl7m4PfFS3LXAfmjDucZcGKed36gmfRy+pg4LVRrwuL4vi4a7B7Jr7b3tNAgggAACCOwVeDlztaWphm13uKXbnnM/i/Phowpf/6As6NfVc1UpQW/8VvjW61wlYdXf9Fe/VcwevqiWB3XaMEOdrfj9W3tShbe0vcRGmokr7GQvqcV/iKfV0xMgS2cfbaPJvNi2WurWxSxdX0rTRf+2zsXxtv3eX4vSJ/Ngw/W0OZC0PR1neTob/0s9DfO0z4E2pXnTsG3bUalbT8ZVWi77Lo3D5uNAxtGT6XRMUxy/zXNPt7mOo3jRvzUPB7StFY16NF0ztE9PGhtvuYMNY926arrr19UwB9vdplX82D7ftq5sfId6Pmx8dhw81OO1eT3kzWGfyb4z3eSKVPQRcekZ7r5O34d9ng65cg9GqACuW9WCXqlqV+ZDPym0KsT/Sbf26fnxYazLxadsXeDW9WBUB5skOu6Ei0dlouhirQJ7x7tdDrHrIzm1L28NrTev2e2ecA2/s5r1msf2zbGTLxxbmcr8vcorBqt64j4HDa1Uq863zmXzP39m6e3LOxtHcYx+1KSLhqRT6Ut1P+DpqnVYnA97h7zfGOL49h2t/v4tT823Uoq2+RgzffZJemzw32g6TXHO/feKZfMb2s/h3l9jp829Sk/xPVe1C2/eEZru2LT4DnuxTufNpCsq6tOtX9e8j9DJ1kq3a9mnGhoa7Pn9XTZjJ885Nkrp2QrOj9UM2sGgXaNuqjcS1mh57lixcMfDzi1oe9KhJRwx4rTqikFHXajlP1c/+5SqSVo/Dac3A/qdqmix1Oeydzcs3bzWuUez1u9QNUOmnN+nr68+XyeS7/Qh/1ycj366Yum8P/dg/FH9lAuHhSgt2+gsLeeA5AKbBtQ2ldWsrwgh/5umrX0Wr1t3o72VsLMmGjvl4tf4KHW5lnOihtc7HGxz0j0eweudDfFfQ5z7ZcPi361XR02irYnGTJo1Ikr7T2hq9mTHzhrdHRJ+smrx/KfKew4bNqum5uhwSgjRhdr7xmhyuk3Wpmnn1W6LxO/Twx7vaVj863bTHDNl7jmRjy/S9KyUsUeNRritJVfxuXXLbrSnTpY1wY+dPHeET/kv2TIr3UMrFs77mhKUL2NZeudGT549RK+efJO2sFNkc3vDoltu7Cr9uMkXT3RR9LbgU9XaB3/U8MSty9qNrPDDj5x4wdBUReUcPe7jdM1Hm6MkNmpO5jVlwp82PHpr6V0WpVH4MVNmXaYnWL5RK7qy1LHzb+2dwf21IbPhB+7RA99uR42aWVVR2+fkEEUXaP+xh5FZxeGk0bFqaxwHZYDSv9O62qCO9pyQg2yuj8ac8PCkKJX5rOY3rxH9YeWieT/RyLpcHwc5oUM62IuvjPYiZyeTdmdqFGcnwbzzcZUAX+mBPsl3ty2MldTrh1WCSxa78NS5JlUouEW58bOTfnG4waXzk30cjVLyCUr3kgT0EVMvGV7l0+/VtC/UMWyEDlCDNGuFbSN5Jr2fWeErLh7Xx60IU2d/sWF85WJ34432FLu2pipV8QXN4wUqZNBLbUpL2dZb+54OlXZvfSp97tips+9csWj+derbLuHIGRcck8lVvEPbwlzNwwgNoAOlVZiUlebDgnWUjs7pn3LLa6fP+p+Vj9/669I4UrE92z68WZ9siPyD6t5pQB816qqqyG+7VPNygeDTfePqv+oNQF0FdD820/pFzc87ND69ntdv9X0m6YSm4VOl6eq7XWMHWT1g+F26i+MaWep5/Dbb7RsFSlvnuxWwLxs3tfaWbO6i76xe9tvnSqmqBh51ntL8g36fqHEouJQxCUXds5qnbVGm4r31U0dsjPPDP79y6Xo91//AD5ClabZ9T5pU0cdVvDby/l813XodOJtURfOY0VNmf6JjIGwbRi06GRxQFaWu1i0aV2hlDdX60vsY7GCbBEa1WnD0jT7KXFg9uGVt/YBZX21YsuHP5fM8atrcUekQPu8jvcMgxMdptevVxEkFUQ2vJdZZmKrKnOWjijfVT5utC0/Z9zQ0/G6nejqdhFRHUTRL2O8smCWDWK8Sn22DW/VcZp00uy8Xu/qx02afruD1Ef1WnZ4wTKei/Syhfheb0KLXMZ/rQv4DY6fO+ple1fC/KxbfsdlOAlI+vE3zdZmGsyBWNkzZr7JVZyPUUrRWZVp0Eud+Zr9LzVGT3txHW/o3bR/U9NORCyeNmzZ3yzMLb/lJKU3H70wqGinnt0h2ht7zMHnslDlVKxbPu0HpOkxVXVLp12qptG7iAS6dkrtuet3beNnXpV38Ee2l52guR6nXYH3bMzGS5VIN4Ga1zuyT88/Xn3DJJxuW3GbLkDzRUsNOTbnYTHXSq0d/ddf4KNYeMWFM87BHVrpHH+kuaYd+fvyUOWfoxPp98pmmfsM0Y1pXyQZWTBqyUcqfo23n3fVT5szPZlM/XvPkrzd2GE9Pfvph4x8dmEplfqDEM0xA28ik+qlzNjQsmveHnozgcKXpHv+ln6uOO0H735q+AoS9dawQ9F76+XnppqC9rriXWW18vcs9KV+3BVyg88gb1PO7SvKtfC7+N33ens/Hb98W3Pxczt2utCtbg7MXsRzyRgfqCdUupVxNeL922JMUSI5S+yrNzy81bz9Rt0fUbq+wPUGfC3Vw+0H9U81Ti8VcyfwcNWlmX23xJ2v56nQwVo7U79aBq+2j4+NuLa3lQvvroHKSzuTfVj91rg4uexs7mGfylZ/Ra3M/rGP4KeozWDv+s5r2TVr9/63vBzVeublx2kguSIXofWOmznpdaQyabh9Np0oBpU8qslxd501T7YaUxmUv2knr4N0/F8VdndR6BecTtINcJY/SW/b6a/pvHTNt1kka+z7bqk3R5+NazaV83KDEwitXWWZh7RqfctR6R0BwevmOv7oik7lE6Uv7opL4sfqtWztdjdJZ8E4s1X2XDmZN2h4yOhkYpvbp8jw/lfY/GH/CsIstyGi4F9WM9fXK9aXeo6UbYyPSAb5Kn9NSkb/cfnY+8hmZTDo9SydSOgnxJyso6aQw7Nb8L9YA9+j3/eq+Tv2rtU4nabnP9ano/9RPGdZWydNyXnocpJ0U6mTLTVPgVjDX2xZDeFAwd6j9L/pY8D5K49A25C/y/Sp00lFoNi1+oTWXj5bqvPgFc9KnRdPM6DutbVqPZ5Z7CM8pB7dUQyS7Yv3U2dOUq7tWvy/SZ6LS6b0M0Votr3Lk7m59NP/eHresW2y1XN5/TEkuGTxhdr8NGxpbVUrypEa1Ud3btnWtE3sglO0D9qRHTUf9ND/Jerf5itzmnMuVB1NNekamLt18kaZznn5k5GXbggzjq1RapUc9d9Gkkpc4qVTTV2g5JkWR+2D9lNmzlFqjatfYPTl95Wb7RY3mTidae5uREy8bqhOpL2ge3695tcA/VPvRs7K6UQvwI72C6v5khN6N0wZxhk+nvjdmxqzhWnZ1Djrzj9Xdj1FrpYbT8a2wvKXttu3bugd7eFhYE7XkVu+dg/23jTlhzuQQhXdr0exk/zWaD23rYW0yb0HrKoTFmhuddLhhWvqTtW9fU1kRX24nmvsfe4cU9RdWVFfZfq9gnpSwaU92egCad++fpBK7DqmPqJ9dHcxelpkc+AbbgJMDhW7N2ncrLM6EdjLtBh030ZdlDg/tRLR//1Hlpd/VTeuf0L5gBzPt+G6yAtb3m1PuAZ2WN++8O3kBzOrSlBtPc4/V9QnvalzgtpS6HarvIVP+tk/K77xKtu/UTtxX1+x14Aw/yLvcUr3CbncqXRHHLU01ytUoN5L5J033Eq2naXrT2+dHTctes3qhW23zUh0NUy5ytz62kuI74zj6jI/ytnMVGg2kbsr0heH6e4t2Rh2k/FvU81eWYGD922pTYfflOpi8Td3tEsOTSvNJlXM1tLrW3Sr2in0uV6Ui/VqdGNgO/X4dwGpSsXbbThtj7a6x+bQtTk2Xod8yNe7jmtZAzYvVb/gXHRU/q/ajU8GbxZuS4Tv8UajVtuortaxWtrFMZ6If1PnbjvJkumwg7uhUpfuAPlP1OU0nNHetXnjLaksnB8W2oCcE+m0axxdUTH1nMnxxlvN5O2lSf+9VqmK5Lj1pMRX9e/Ug7UsbVHlS3En6A/wzbNiMGp+KT9O5xcXaJrX+osXaZvX6Xn+qAtX5YybPvmPl0vl/7Tja+snHHqfnE+v9Ak4H+XiJTr+/L6c/6RSuJZfxOemJI1Qqv1eZjlPv1vKpJMUN0pjb9FP9a+3g+Vp97ED9ey3BV1rj3BYdpFuiVBTH+VxUEUXVWa+7XuPwDW1qZyi/bqUAxUalE439Hsr16/fGdBTspUZnqYj56+q5XfP0La2/G0POt+za0lzMsc3UCwxTU3QCcL4M7QT7+3pdxP/Lxqlmm6b3qZDKhrRL5at0AqqT2ejvte2epmXrW9Gotx7qMklL9oIfVqRT86KQ0rZfaLRsw7Q+vqtfYzT920Mu9zWdyCSlCLbJ5fIuv3rJphWl9PY9eMJwOfj/o0+15mOH7H7mQ/QB9ZqYTmeu0vdX9Om20TwrqDvblj6m3GloWDzvNg1Q3GI0ZkUkbUudNhWV+Q8qqdZJZCVzj2pj/3Ic4ieyPt6VSmVjF1dUpfL5vsqxztaIrtV4hu7Otmj70BR1IIt8VKVuituhSeVo2jfy93Y6KesYaUvJNjeuaLjjgI5nqcjpJNq/XmNQPAg/iHP+p3EUXsiHbDaKMrGtK9u+8rEfqbSf0nyeqpdhVsdK2OlCd9NxdMYPVWnPxzW7YnMbQ4h1UurfqqPNjJaK5is16A3dDH5Yex2+gD5TAcTr3efB6VqNVlLX7Ps7Oh9WwB5PPDnCu/HanJdrh7Gz4fNUTLZDyz9fBb5P7Hkoqey2737woGtSNFjZ4+kcQMIat/NEuZ+pQezRsvdpFr+e3b7zvtWrF2hnbd+MmHrFJ6p8NqMD84XqM1Nn5SfrWu+mdesebCqltFWoI2PjLr9n+aZF+16X1tnyukqXeVIHgdeoSPFYJbeAHA+obTxaZ9oW4JNgrpzBx/I7dy7oZD788OPPeba6suZG7adlB2cN2a7R8VY7Y7tOhR8+zreqEKC6q2Nb2yBJ7t9bUavmNoSHmrMt/1mVrnq9xnqWRnBm/bS5r29YeMuCtgGKLSoh13SLBxHvm5qb/FPrl897oWO6CVNmZxXWz9BsKpcYD1LZpuUkVpel0yFYYc2HdQ0LO73e6SbOuOxfsnH+Oa2TD2k2j9X29OaB9Rc+s7VYDF02rh619hs8bIgu7lvuvEbTXuvi/Nc04JAQpU7TQk1WSYAF4n0Cej7k+ipT2t/INR+LFGjvaFh6i22zHddBUI7zS+l06vvK3bY2b/XrSzPm82GwTmBUEqRxxPFtTVsr/7pu3TzbDsvHkewf40++/N3ZXEs/1xIrWO9titvL8hGnXVFdvSc3WmvO/uuyuXuuYVF7w1Gj9IjlOK7TFmi3hjZow73vmcW/XVQcm6Z5vVrto3L4YbNW9h2Ueygb+X4tzX79hg23Jtv8umV/sOvg9ik1VnStM1u9QrnQ7Gh1YfnaRbdtKyXo7HtghZ7JYZfUFOp0QvBLnbx8X1FS+5k/ThyXjp00+ybVCbGTgGT5y8dRDNTa4IPVMbGMj5WyfWjctNnNzyycXzgRLB+gQ3v9lFknqtOZOh4N0PSX5eP4unxj472d7HtuxKQL1lelK26xoKx6J2XbtOa+sJp0ih2vbXj8Vu3j+85rF906zFEXP5Pr+b6fzlS1zcQPrFh660NKaSeu7daVq7+w4bjqaLlOx/qmMtmNWkftTqa7GHtZ5+DTFXN0MuUHaxGahfrNtA/3yHa2lmiIur9b+9i8g93Hyib0krQevoC+wDWFs+PvKLdnxblzhGfFmbbBahvVOio22jj3/ih1fGV92zIli6YzvW/n97h1O3e7FTVD4oejZpfddZ+zHcM2zJe90ZnsBOGO1oSzOtG+a2do+vOmToK5zdi6RTduGHvC3J/rkDFFa2icIvFplQP7/VFX9TsGfwXNOltn++Se07tbYlebHiwNPT0nGU4u78u4/HPHaoBJOizs1AnO/S1bK/+4bt2+JxUaZ1i//G7zKjuY6Fdbo5ygMtb6e8yoE2ZNCDppb+tVbMnEeatwpFxgt43lOj6qebEgq2N9+LIODNtV7PfVVMpyCcEW8MPqtcD6d9eoApfNg52UarJ7m5CKlauJ+ti2HruoVcfy7N6+PWt78tFfbxw//pIfuurUm2Q3QPN8dm2l/4YiTCFH2LPRJKlGjLiiOkQtZ2l+Ttdyq1jf/WV7vvEP/V3/el23vF+75enq9jpdc37dioXzHygfdT6qbEy53DZbUK30i+J0OG7c1NlPazvZoVW9TUv+rCogrmlq2bNi9bI9m8W2SUnbe4Toea28VhuvcsKfrBqUPWfcoDkblGi31oBe4OTXqJRnza7Ne5Y//cjNqyydmnbjKHQq/rUqF/us/b0pFLBaVOS+VQUpe5RyhCb6aV0jVWUwt0GpGmP/+GYfZq1pzccr9oSqZ59ecqOdoOy/sTKH0h6RVPvY3yAzMiGVVORL6+StMd/s/31nSG0cUB3+n+b/S1rCsT7j36WxKAffRaOai0p3h048G3Sy+RGxaF35a3RpaPvKhbd2d51aR9foZI11uJ0MKCt+S1OLe2RDV8eAfU9g2s2QuHWBPBp63KQ5x2u87dZNFOXjXEtT47NP3Wm+B96oIqg8dmobUf0M/89ad5eofYOWuzF2j+k5HZeuDtncqh2+cc3aJQv2v310MQfjx88apoqD79Z2q8OI39iabfpBLlLWP4p+ouleo2UcP7Am/XbtY9/pYhSHtfNhC+h9zlZRc8p/RkuvSgzJWbLtf7pUnBz87FGq+nlkNNpRko1Ts1Q+V+pWyugpzHXVWCoXL9bff9qW11PeHkwqYIU9XVfE6mpMh7q7KtS6QcpRK2flntdVu9WbHr9Ds9V1E+daH48qM8VckR8Tp/pWd0wtoCkDKlo+N3DanCSbXOyvWmBBtbVV+TG5Pud2qxj2Xus3ZEpThYqfh2tt69ttiV1+WTc1oDtOrv3vwurprxzr53XnxD8nJYLtU+iXEgU30HbXzvurrHTanAvV8yz1Vy4u3LFyQONdGjCOU/7PkYtvVT+rfPXa+umzZzc8Pn/+PpModtB8HNenOvrshGlzLMeWbEPWSweL/jqBOlEbzQS15zWup5u31lgO7ICbp58+aWP9tMdXKQiPleHIlM+1Ff8eyMhSQ/L9Vff+Go1DJxphZZx1335+2YLdmWGznq45yv2XiqDPsHWrzzs03gf1aTsJXbvkhbX1U/tbCY8qdLljNC+ny/kkBQnbBlQQoWvYkctX1dTkxk2zbnOeyPtw3crH5z+q/onLiubWR8f2rXxYJkerwwiN62j10R0WKrvxkWpG+1xKa6NuWE1r7TFzbJe8v2HRfJuXNle1H0ijDHpuke6m+J02hcu0NOO1RYzWyKwWts43pRFF2QpdO6r0rbn+0+bs1jb8H35X9pelingHMrEu0vr66cd9SESj9GlVHvvHK5fPa1Da0H/G3JtVamHLZ29WnKUAdpOWd6H106d9o6s78l6vU8f/zIRYlTej98jvPNUz2TVh8ux/fWrp/CXtByj7FXmryGYlY1m9FeuJDU83FvfvsjQ9bNX6rlZFwS+lKqz+Qvlsql3zmKmp3qJr/N9vWDz/uz0cZVuyOBfuU6XBB7QtvUXjSrZ19dSrpl2sC9wqWNIWWxHlB/j+tq5yOgn/9+aW1C/WL/9NFyf/baMub/FxVeqftY0P0EGiOeTCN4qlMF4ZhO+qEuJb5TxYJ5xXjZxx2W/W6IS6fOAjob3rQPQSz93uze7JbC5co3uzTte1jg9pZ2rQmbIdjI6sInYdcbVzP6f5ukmfP2o7LW2pdlB5QiF9dVm3fdSU2G5H+8rW3e5Pys/tUoLS8Pukfbk7KKhZEZ0WTzuELtTub95ycTp597sNIAbVo7HjXtniKLujXmM03qt1ovDess971F23zPhxSq2H5biHQuOer9poYmVJFO0LJ5Yqe47iKMmlqd9BNRq/nQzqurcqx1gFmX0/x6ifrnGrj306aVRj91PqrCf1WTSJP+sWFEoLdI17Z5wNX1Q/O4IO1HXOf7T2TkZR6ORVROfdO+TwnjKL9+rAd6WGP0HfdkfAXfm8+1+dxJTydV2OrvMe19vF+pwoNbchZZeqO0/XddekxnYu/0abJ63ORs3XnSuq1j+sIYKKl/fkYveItnUV3yYVkU4Zc8LFb2g/tgW5xrDn16p7Ycv1PS3zZm0J1Vq7upSjkxfdraDhh2rGRmi44/SZqWKUH5ZXatTtkC1Ne/IfVpR9u4a1EyiVdupE38YR2yOiw9Ha14aq+0gF+WMV5Oeqpvvt+n3Qzcolm5bnc/6jIR//ncZvwVKrQ7eMqgRG7TrpsyJWVT4MyTyP187yxdCv8r3DT7l00EFPtGxAVa7rq03etjVN2G93e3JfUqudKIXmTZkNWq/fU7vqnrjjdB1e81i+s+lXWWMzvrr/9nXaL7+pz/9o261U79n5tP+QKr6OT+qjl6UvtWr6dry1o4BqbUQqJVog9oNrtP1ZPJFN2He/s0qcwauy3cEd31cs27k6l8t9XCZ/r+0o2Ta1XpJ1pRluW1cSOlaf0UK7rroqf43dddLTpTEnWf+t0utY6J9u9E0/KQ4bKlv9evX7oX7rvMeNSufzVxf7HVFfhy2HrpsmWlWWZoFy84Bzo8uEpHtWi8eiQpA5PFAWsLVxa+Klt51Zh4dU7rpIXd5Z2PK18Qeng4lfoi3Y7r3s0NhI1BS/NKrhtbVx9U7ddtUh4eH8aXPXKPI9mtfBqgRjBynbIe2A0mlTWRmOUwVcVdxJms35pljB1xb+rcX01q6KRCE5IBa76Ut7uv3VyPfkg78mzjf+btXKu5NrW3Utu7Kub+b5ZNJBlYJS8UhLq09xMmrreaNhwgt6YNFnld35Q8fB7ASkIqqqjlLxD5Tu5M6moBzEbE3+BPVPisnTLvrVuOlzFDALjZbEbuVRfFZBqAsT6yfPflvD0vn/U+pf/q1tRDXq997Lu7efznx82JyPw3+1Ru67zy7ZoWLozuZm7xBdtqlGruZnmHIuFTpgbmhNJydmXSbvrEeqn++vdXOtllv1H7Xcwb15XDzifDfd4q8aXbvQKczAQuXrMCHSMwLq6y+8TzlV5cQKjd3Lv8nNeGTEpMHLq1J9vpJr3ZMuVThUkNb6rHRWcSnKpK7ShnCVpjVRxfDnDD/+0idLuagNT9+6ZdSomXekagf8RdeRq+J8Nuo4DgVVFb74r2g/tPX0Wl0GOXflknl3ay4OYnt5NLti6aPrdELzi0xdy28jl6oIlTavhSbEVh/C7t/0ExQgPqbt+GzVgZld1Rr/RZ0fKKQ66L++rkqVLgulRVqUMEC19h/UtlZcjlYvNl2SSRasrw5GZ42aMufU1Yvn2bXjzpsFC/INbuZT9VP6/YdOAKpk9CYNf6Xu+lDJZ6zMROkAu3dwFUO8oHLyFk00o3P6YUdNuqL6+WU3WsbjgBtt76rtH/4xn225Jxul9zmOpOMot70ld5AlAAtyq5e5Tbo98efV+fStygRUdrqu8n6Y7mtQBVZVmlQmQt920meXePbXqMTSf1pEqlNhIcCNq01VL6ydrqvBalQ6o056HHfSKAcfwmWjpr3xZ6sX/n6NOh3EtlcY06H+e/gC+t4lUf2Y+B6d+FysjfpkSepAKjtrSkzFn4WOB/03GZtFYjVWDGgH7EKj0KautgH+QSWgP1Vw+TftDMcW+67WRvqAzmOtotAYzaONYIOufC7Syj9eB9ET2ubW+iS3pOlvsk2o2o5zn8q1xj/bdbfrtmJMcVov65dmcbWWfL2WaLIOZq+vnz7n7obH5z3R1UwoQ/8WVWY7zhZNG/iDu/Ob2u/45hj5m1p2h2t9Rb7t5EXVm6/XNcpr1Duj4S9esfTun5SmYUFB012lgPKsAu5wAc4cMfGS+nVP3tagNMnKKqXd77dS67+K39ymtYtvX9lZentoSm2obtYidNZoq4j+SUuhndoSaGy6vtpZ0mLfQTp4fNyNmnmT6/y648O51tyVyiXpXE5bVRwqM5nU27XdfEXbzWAFtnEVrZbrbf9gmc5mrItu0diazKXalkdoHWp7jh9yuWybexfDtOtsHro++GZtsK+xHhqPLVp//VHO2jrYf+0N9m1bdQgWKM4INRWz1NdKrcqaR7PrliWVxHSJsdNGDy657FuqVX2S+p6r0R7rKprbXbbRtW0rqbBPV42vn3zhx5xqLmkeKzVj45Twrq4S96B7Ugqhq7HdXG6a+Wz91H4TdWlIRmGEKlioxODFNUfp4Una5j9utGK1swg7Ho0sjdWOMipKlrndLmHrJByXSfn3qX/XAT0ZeEGuYbFbqMpu/5oEJ91qqozz1Wrfo8lYrr28CcppPq5nDeiE0g/Xxn95dWjWsVjZrYNr7NTtuRXL/rBCg2sJDnljlfFsPSkv2GWzZtzUWf8rvXG2X6jM17Zj+XU7P37UlItO0WX/Kwobux3eVIrn3KjSVJJ9QB1tfeiPzivd6IzLvEf9P1NKcyR8H/aAXneBOzHO+4/qQD9FINrG1VjUtZihiiC6TUT3Fzu7P3Kwvl9co01Mo9ilsa/SiOy+6nZjVG9VTnIb9RCFjTp46dqS7Wz+fpUzL9Hlu6s1jM2fjeVu5VaOUft5SpFSZZJF2gK+lPLRxZrfDRrroDiOb1YVn0d2rFOufLWznIyGO7KaPS3uwZoq95gW0nKkl+jQ8cKYaZd8deXCJJiWbGy+gx4G83lVonuz2vvJSLe0+Ae2NjzUaP3aLVUcu+Z05c7nl+w9yx875fwv6k6i6TJVhSv/hnFT5nzhmcXzbEdIht2zO95cU+1v0jq+VsAnVVVF3xs2ec5VG5bOe1ZpCttEYSJ+7NRLlOtIfVrzvDYX8p9ftSh5wEW7WSgcGzt0avfTFq39bFvvMVMvuUrb3jhtfsoEuq1KsWWfhBrUDrDK8QzStmG3+Rxb36/u3Tr7+LaNo12jEvvWfpW71j/8m9LJnD9+2tyb8nH+WJVXXKORzNUJwebBE1736S1PPWCW5Y3NoMiUqotmzNTZ71PR87U6whxjG6rof7ZuWUty8tDFIPt07udSdr3wo1oqQ9F2qnt77aBVamx5S+16aJDme7iMdB+wm63avndYbV+t36OVIfyQRnGV6hz8sDnf8s3StUcNWhrc9ueQrsydr5GPttFqlndn8noSoRptd+NSLnWDVssQ9X9/w6IddxdPdGx4+9g8JR89nMaKn9UxWVH71GJOb3xeF9vr7HY7G0TH4ORYYoO0a1RX4iJF0f+rjhu0/15fVtmv3TTHTOo3TO9iOlHp9GwEv1wXA1Qy9eKaukxG279q9dsiWeWuDkEqWRs2CSsdcbo9z4qXQ9DljqREYn8nMHHD4qpFY6Znv6EShRqtz9drTJqWLVb7UsKnFjf+ady02qXqPlGf0yoy0Re0Lj6hY8Az+l2+78UKlJeo01dtNM9v96/dvvqWfXPbhW3H1tMhbZKSs8h/Qlumap77L69cfIu2j6QpzWOybeiZGNpGbXntMo/fo1m1E4D9zk86lfmc0mUKo9QR26uicFmTyNnvpLTKK+PhdAttdJ6K9H+1qlBHYb/TKBvdS9Z62AP6ji1uSVVd+Gh1pDMiPb1LcLo269ZoF/xNKhXfrKdqXKhAmRwMpKD8sfpai5oDUSkMFXZq1f5SB+PvaAf9kUYwXeMobRB2QlyjM0zdE++PspHr84xugP2d6kr304Fsmjro2Gk5yWAPklDOILneppny8/JR+GM6jpe25N223RW6BU334Lr79fcIbqyoc/SUOT9Kp1QaoQpr2ljfkfIqTp0y+69a9nv1IAdbzlMkcZbQh6iiia49q08cf7piT3aFFq3DRmxq+zZ6staWYZPPf1vfTPXjOnDq4TLhXbr++WTDwvk/s9Qqan2hfsasn6uw+LWa1mnyPLNvxj2sSmdPaAp3qYB7hwKXTsD867UK9AQ5PUBGK1SVfobuO7WedOkw2zaIHmyiB6p8WNOv0zJqErlz8juaV2cyNbbttWvyed0NXZUZH2fcfZq/WuWtrtIteT9fu+T2UuBul77sR1i+8Ja1ekztDdroJmg5dUIY3tK/cvBynTl8Z286m77NYxikdfIfugXp8/aj0D/Z7vtqPqulbfctq161uoX4uubW3Y8cUG5fD8kIvuUqjfcYHfh3a9v/z627sv96VCqzD9ALSjSgOhqr6XxCu8yVIjppYJ/KOcqK35BLZwZlYjdK8zNUudeP1yi4q5a7cn3RE7pXeJ0WRceZMFr9J2h7skpvdptqi65b/Fm13u2kSVez/Gh1O1qfEbL5lYKMionnrNEwi1WEt1VHALtl6TW6y1/jsJNKM3KN+R0VVqRqjR8//uLRcXXmB5o3O9m2olNNTtd0g79u3LQ5H9LvZ3I+/tyqx29bZA9zUc8R6jZeaesV/G9XGjvZX63hLYe6R9MYpOEn2zan5dbDiPQcsjh+MOSjBvU/6GbklFmjNffKNSdrbmPc2DpZz1ro1Lx/PlulS1J6DG/0U63rMbrL4mpNeH8BXUluzB9XN/OPG7f366u7KGThTk5m2ETaNQtyzfGlX9XTg6yi2enKzFwYufRZsnhM++qdWi87pHiCDrwXaTPTCWzoI6swsM4fvd1dbyePOsfRo5QKc1+jovDvaXv9crtJlP8IrkWuv9d98p9V53x5r27bU9FwXXYYo+kPVMbi5vGqpKhprlD9q6e09djJsO0rkzWPWqd6wmDQA3q8W6BKts+Xxjtm4iXjoorUzVrOAblsdpaezrhY/eJR02edpeWbWdiP3EP5VMUbM7uscLV9Y/tAVVVcW+0yusYY7LJPfTod3qXOulyljeg1sybpET+f1vIdr+l/R8v4X9b95WwOe0B3j7ps1RtUXXFPePfgirBTV1QH6ipeamtWuSPdgy2MFQPOtac4hbcK0DZM7e8dN8oyMq1xbW9276kqRyVbb7IBJ63B1+o4cIWKzvZEefc5HWzmaUjbIDV6CxGhRk/zsB18pMZiG+mfVSHozkw6+qCmWJ9MxfuHlVhFgsHOaIuN37Cr1W3dtcDpIPbKalYtnnefanBeo+ehfElec7Rcg1SL8zztn+fJSYttoAVJQW5WycNVeg7zva6h/DGjehaGXYKzlLZ29m3iDYNbN9a/0GeWntdxv3oP0Xiv061Svy7WaA8Nj9762NgTZ1+lWmif1zz8jUY1WGvvLKXVA0I0ZVuLyVHcZiZs1tr6iWrL3rbPpJIDS/fHCY1K82rj01iLhbvjavtfqi525q1ryOHbe7a88HT5PfaWvLwZNWpmQ6p/3X9KSLnbcEylS89V/x+Xp9EyBt1oU97J2mOr3T1+2tzvycueQHa8nvt+qR5rueRprQtLoG10qw5ehjpIi2wnLfucuNi4i9pNqtT1ruZtz9+2vuyZADae/TX1LbuqvB4fa6IKmtuamnd9fWvD3Tu7Ki9X5F2oXO3/qCazHjzj67Uezta19F81PHb78rFTZv1YBZETNK4ZqhpVqW8dVEO9liNpRJ1A2E+1qBay++i2qtbflU5AdJ/4nSom/i+dEFyrHXKAUtn1Y90b7abqufDJQCrFMxw71dHIdJ9fPsxctfJGCypugiqY+F9WzgAAFR5JREFU5avdOzTM65MJJkMoqbJRSq/tzWrP+xHpkF6r/joAP5rNZ4fM9+nMaO39OkkJfZXGSgNl7U+1wZMp2bTUomF1zhPfrDLlb61ceoudzHbaqJanRtP5TlAaQLWl/05zVmlLo6D5me5qzcu8cfTEi+5PVaZ/q/3xIm0bk8dNn33WM3NOvN/Nf7w4So2pk2bBguRSzvxx0+davRbtV3aJUEvSIVQ9u/g3S/UM9zdnKqvspPIizVadvs/Wtj3TVpb+JwpJu4qbc1F408rHtq3Uffqxu15XkubFKtXRBSV7AJislVifLhql0IlshUoa7lXdhx6cmBTGE+/I/Nz3bR2uKWj7CH21xLa+tF6j09qmZGtKM2/rSmeID+Rz7rqVS5KShiRJVJXWcyV0yUTbZiaVPs/V1z/pGhpa9dgqlQBHGY3Xhv3UykeTbapzVK2P46deOk9r+S1akCnaHk/XcwLqk3dHZJLjx7maCd2C7TVfM/67/NHGbfP5ErZ0v+W9hBMuH/X2e9yaXX92m1cvcM1bHnAbtv5JdzcXgrkli7fdFV/T1BJPzuXzf58NsYpSVBM2hC22t5aaZHxJRHG7dbD4Z6E2Jeu2bUK2fsSc3JLg3qaq5+fp929tZy0ksY0hep2Cx+e0yVkIWaKi9Hl6Wphyr3qUpw2afMIF+n6PPip6TLZ1O8R8e2Dar+n/Bj228hXYrF5y6/JnFlVcEaL863Q2fqP2991aDJ3sqSa7MPT/UVVsumxrU5igW2fu7PhSBeVMt2tvfsSy7spJ/fb5qpUt+zDo4NIQP/2oi/If0Dqz200WdqzZveKx+Q16dvXf6vGpr5HtL+SudWjzkZTaWAxbo+l8cke+aZrm4xvq3nZo0hncch0en9W6eCob/Pp9pl/sYJW3NNBC7bl2z/u9ynRts14heb62VQ4K61ri3HXdBXNLr2u925t3pb6paT6jcSl3m9Pyqwy1pdVynH/WkVqPaXVLShW+bJiyJjy98Jb5WqD/K9fn9SCdtbl8vKbYP+S2uZt1oP+5ht8ofa0LXf8sffRb60hFxO4WPRXr/J1x05CGJfNu2t/8lk27rXXPnrRu0Qp/1tJv0+H4s8V7/Nv6d9YSZyse0+nyjzTMFlVDf6pYMS6sWHzrPc+khmr7ic7Qsv9U69jOC1SiXVh/Fh7Vvkq7zMdSqebRDXOnf2/rQ4XnsBeno6eb3frlZ3ZlR+jSwds0jr9o7Vqxp8Zhxc5WMc+2xfBX3ad08bD+O/rq2fJPq7+YnHvqqco9UTb+jaa7rmhl27DZJX6arip/+oZsPv+b0jD2/Hw9m/vTUdPuY7UO9WQw5cz1IBr1L0wv2e7CTs3LTbpd8ayGRTvfqiC0RP27asKah29drZ4NctUzZdx9UeNu24bbNbqD707NtC3LnxrqK/+7Xc9Ofqx68rfr9HqQL2n+rITxhabWlqXu+utDvkWXBvWiEw2ySdvDE/pOLDqMIjzz+C2/0a6pJw6GJzTRp0OU29ghjVvz5B+e0zq5XLfyzVC6X2hEu5Smbf1pOhuVD/9kSz43aOVj82VYrPdx/fXxM4+feL/Sf0WTVya2bFvtrD247drmH1u5bfMDHeehu98rV96445nF0z+7szEarTX0YcXex2Sc0zDJ8SH51vFC+8ZvNS/nhKGt53VcV7lc6l4tv8WF5nwqp0zJ2237UnJ/h2ztfPGGhrnT/lTopr9dNM07tq1Vfu9zSq/HAvs1K5ZVrrKkeoLjc+r2kEa4QZ+FL3cwt3nQ8r2iGjsBiQfNdMereNCelf2/WoFWwa2vIGUbdC+zHjWZja/UBr48lbZHV+pMLjmWJDuQtgH7bw+wUAAK/pcax3/owG5Z0cRCG7ONScdTf0trlL9edTXnKofwiWQaNgXrr4HVqsH0vGofFrtc+PzWZ90C7ca2gWjSr9imtD3oe4Z2Znv3wVH6WIyXcPeNhpmpYYo7evdpbSe0A2d347R1rf42zkaNe4zmodv5UJoriieo7V8c08msFNPuk84OYDZPB7IObZoaX7viw9L49+dmw9nHptmdhXrv0xR9Dni4DiO6XuNZYB87OPa0sXm26Xe2fNav2Nj6WGnp1MzS+r6+tIyl70Kvff/aMJZG45qpdlv/ti0usOnZx6axv3EoyQE1pfkum2bbNlcaUU+naeOybak7057sA6Xp2reNs2jZbltTNxU6dr9vFIc/kP1jH3vbX63pysDmr6t+yYCH8I9Nyxp9t9s+SvNo/bqal9I+bv3L0szU+liwv2OSjbfU2DyUtlPbJovN9eq2TP26PVaVEh/y7xLMIR/xyzRC2ylid77ueV2vh24PcZ9UUchqVaf54eDX6QhQ7R9XdB6p4Gv3JltjuTyVYiYr8mmdtaqCR/RV9dcLDoopkoAfGrSm/6BkumfZzy0E/GQEe70K6ewMuVm5tK9usxesFO4zTybEHwQQQAABBF5Ogb0B6uWc6sszrajuPHeiKk7dpIUcpHLxGk3W8uoWzhWvVTzjVPnOcvpBbxizgJ4EaZs5eyNTWKtg/0Z10y2o6tfWJCd1Spkkz6nfJhUhXbv1bvdrJSk7U2sbgBYEEEAAAQRecoGyQPWST+twTMC7ma7PgHRqtsLvtxXLVYO5MBul2K1gbuG60LXQ0YK9rlkmxWV1pZlWkXvbkIUTArv9zT+uW6e+svMe3b9OMC9R8Y0AAgggcBgE7HrCq7tZ7Vorh+nWmbQ/WhF5ugVv/VelN4vQZcHcFPZ2zOiXbgdKsvS63m6vz0qK7XVeoAJ4VbhTUfvPsrp9q/He5EEPSbbd0tMggAACCCBwOARe/QFdqi1rXWvFiPCU7iK1l0f0U6dkuffmujvQJ5E+6aYidL9IQXy1Qv9IC/jKvatHuEM1k/9t570H/USlDhPkJwIIIIAAAi9OwGrp9YYm1itLV6sS3LuUxb5PUXmlFlrF6vvNWG9QFbqHVJP9ucI9ivbOYbslwS/UfVebegMcy4gAAggg8MoQKF4XfmXM7CGYS68a8TV1OXeqHsT/ceXQL0hK3jsbceF6+l8UyBcLaZaSDNX9qGv1EpMv7rgneYBI+S0SnY2BbggggAACCLxsAr2iyL2d5gqXbRnoNtVUpvQkLn9loRi9XYq9P/REIj1mapxK2u3Vj8266/CG1ij8NLvSJU+n2puQNgQQQAABBA6vgN3H3fuaiqSeevelE3a9PNgj/NQkVeH8Q97nf7XnjuRFCr3PjCVGAAEEEDiiBXrLNfT2K0HvbQs+bw+b6f4ienKrmiK7HjOr6+13v9DqFrUfEb8QQAABBBA4MgR6Z0BvsRidslvTum/soXI+eVXinVkf/0pPgiu+yqP7weiLAAIIIIDAyy3QOwN6q25Ej9refduleVImH9xavQzm3p136kntNAgggAACCByhAr0zoFfb65ftFY/7ayykhyeV9mFr2V9q+iOAAAIIIHC4BHplQB+Q1SuBQ0ieBNclvL3ExelN086v3RYl9613mZQeCCCAAAIIHG6BXhnQY92Apge4VneHX8yO71G6590dyfvBu0tOPwQQQAABBA6rQO8M6JUK6CnXp3v55Ar6LgX2F7pPR18EEEAAAQQOv0DvDOh5VYiL3dG6Kt7lvejFCnHbVCFuw+FfTcwBAggggAAC3Qv0xoAeVaQUzH04SdfIu9fxfrtey/Zc94noiwACCCCAwOEX6H0BfUpy7fwEPf5tyv74lUtvjT33nu/Pif4IIIAAAodfoNcF9AFHu3Rw0SA9x13vZ9FLUbtv7Pa23ve8++5N6IsAAgggcAQK9LqAvi3n7JmvO/YXyYvrqq+utQ84Atcbs4QAAggggEA7gV4X0Ps7y6GHQe0UOvlhV9eVboSy51PcjP0/Va6TUdAJAQQQQACBl02g1wX0UKEctw8X9UjYu8F6mPuZA/q7iT1KTyIEEEAAAQQOk0DvCuinueoo705VhbhT9vckV11dt3exqZK7P1G59Zn61ztfNXuYNkwmiwACCCBwYAK9KqDX9XNDVQ/uPQrW9lCZHl5Gd8fomvu5dZGK3mkQQAABBBA4QgV6T0Cf5WqifHSRctyvLayL/dZwV0X4JE1Kxe6npKJolvL2tUfoemS2EEAAAQR6uUDvCOiq1NavyZ2o8Pw+FZ/XaJ33NHde2Dx0LV0nArMG9nWn9/LthcVHAAEEEDhCBXrDPdapfhNcfdr7rynDPUOh3K6NF/4WLqQXKrTvbdezZLy9aa3Q3VKr0RnAQGXZQ7o+PNW6wm05Qtcns4UAAggg0EsFXvUVverOcLVROvqAArJdA9+lMJ3Xd9Bb1JJvRet8ErJ9sbv9VjBX+lj9YqXVG1RL7eGYTOwmuSvcM+7GJH0v3WxYbAQQQACBI03gwIqej7S578n81LvKASOdarW7OsubJ4Hcct2xXnZu31EStEthXZlwdbOPNaVvhXzrrje05UPs1m27yz2rvoU0SUL+IIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggg8MoV+P9Lvo13yq53zwAAAABJRU5ErkJggg==" alt="Orchard Assistance">
+</div>
+<h1 class="login-title">Portal de Pólizas</h1>
+<p class="login-subtitle">Orchard Assistance S.A.</p>
+<div id="errorMsg" class="error-msg"></div>
+<form onsubmit="return handleLogin(event)">
+<div class="input-group">
+<label class="input-label">Usuario</label>
+<input type="text" class="input-field" id="username" required autocomplete="username">
+</div>
+<div class="input-group">
+<label class="input-label">Contraseña</label>
+<input type="password" class="input-field" id="password" required autocomplete="current-password">
+</div>
+<button type="submit" class="btn-login">Iniciar Sesión</button>
+</form>
+</div>
+</div>
 
-    <!-- Dashboard -->
-    <div id="dashboard" class="dashboard">
-        <nav class="navbar">
-            <div class="navbar-brand">
-                <svg width="120" height="35" viewBox="0 0 500 120">
-                    <circle cx="40" cy="40" r="35" fill="#2d5016"/>
-                    <path d="M40 15 Q25 20 25 35 Q25 45 30 50 Q35 55 40 55 Q45 55 50 50 Q55 45 55 35 Q55 20 40 15 Z" fill="white"/>
-                    <rect x="38" y="50" width="4" height="20" fill="white"/>
-                    <text x="90" y="45" font-family="Arial" font-size="18" font-weight="700" fill="white">ORCHARD</text>
-                </svg>
-                <div>
-                    <div class="navbar-title">Portal de Pólizas Etinar</div>
-                </div>
-            </div>
-            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
-        </nav>
+<div id="dashboard" class="dashboard">
+<nav class="nav">
+<div class="nav-content">
+<div class="nav-brand">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAB9KADAAQAAAABAAAB9AAAAAB3bs6AAABAAElEQVR4Ae3dCYAU5Z338eep7p4LmOFSEFCuASQgh3hEowbjFQ8ONcbNsYkxx2YTk42ba7N5E0021+6bYzeb883m2Lg5NmoiqDk8SdQYNSqnog6nHILINcAc3V3P+/tXdw89w8wwIAo634Kerq566vrU8a/nqaeqnKNBAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEE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wIqej7S578n81LvKASOdarW7OsubJ4Hcct2xXnZu31EStEthXZlwdbOPNaVvhXzrrje05UPs1m27yz2rvoU0SUL+IIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggg8MoV+P9Lvo13yq53zwAAAABJRU5ErkJggg==" alt="Orchard">
+<span class="nav-title">Portal de Pólizas Etinar</span>
+</div>
+<div class="nav-actions">
+<span class="user-badge" id="userBadge"></span>
+<button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+</div>
+</div>
+</nav>
 
-        <div class="container">
-            <!-- Stats -->
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-label">Total Pólizas</div>
-                    <div class="stat-value" id="statTotal">0</div>
-                    <div class="stat-desc">Todas las pólizas</div>
-                </div>
-                <div class="stat-card alert">
-                    <div class="stat-label">Vencidas</div>
-                    <div class="stat-value" id="statVencidas" style="color: var(--red);">0</div>
-                    <div class="stat-desc">Requieren renovación</div>
-                </div>
-                <div class="stat-card warning">
-                    <div class="stat-label">Próximas (≤30 días)</div>
-                    <div class="stat-value" id="statProximas" style="color: #856404;">0</div>
-                    <div class="stat-desc">Por vencer pronto</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Cobertura Total</div>
-                    <div class="stat-value" id="statMonto" style="font-size: 24px;">$0</div>
-                    <div class="stat-desc">Suma total</div>
-                </div>
-            </div>
+<div class="main">
+<div class="metrics">
+<div class="metric-card">
+<div class="metric-label">Total Pólizas</div>
+<div class="metric-value" id="metricTotal">0</div>
+<div class="metric-desc">Cartera completa</div>
+</div>
+<div class="metric-card alert">
+<div class="metric-label">Vencidas</div>
+<div class="metric-value" id="metricVencidas" style="color:var(--danger)">0</div>
+<div class="metric-desc">Requieren renovación urgente</div>
+</div>
+<div class="metric-card warning">
+<div class="metric-label">Próximas (≤30d)</div>
+<div class="metric-value" id="metricProximas" style="color:var(--warning)">0</div>
+<div class="metric-desc">Por vencer próximamente</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Cobertura Total</div>
+<div class="metric-value" id="metricMonto" style="font-size:32px">$0</div>
+<div class="metric-desc">Suma asegurada total</div>
+</div>
+</div>
 
-            <!-- Filters -->
-            <div class="filters">
-                <h3>Filtros</h3>
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label>Contratante</label>
-                        <select id="filterContratante" onchange="filterTable()">
-                            <option value="">Todos</option>
-                            <option value="ETINAR">ETINAR</option>
-                            <option value="VIGERANO">VIGERANO</option>
-                            <option value="LIPIDAVA">LIPIDAVA</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Aseguradora</label>
-                        <select id="filterAseguradora" onchange="filterTable()">
-                            <option value="">Todas</option>
-                            <option value="CONFIANZA">CONFIANZA</option>
-                            <option value="EQUISUIZA">EQUISUIZA</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Estado</label>
-                        <select id="filterEstado" onchange="filterTable()">
-                            <option value="">Todos</option>
-                            <option value="ACTIVA">Activas</option>
-                            <option value="PROXIMA">Próximas</option>
-                            <option value="VENCIDA">Vencidas</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Buscar</label>
-                        <input type="text" id="filterSearch" placeholder="Póliza, proyecto..." onkeyup="filterTable()">
-                    </div>
-                </div>
-            </div>
+<div class="section">
+<h2 class="section-title">Filtros de Búsqueda</h2>
+<div class="filters">
+<div class="filter-group">
+<label>Contratante</label>
+<select class="filter-select" id="filterContratante" onchange="applyFilters()">
+<option value="">Todos</option>
+<option value="ETINAR">ETINAR</option>
+<option value="VIGERANO">VIGERANO</option>
+<option value="LIPIDAVA">LIPIDAVA</option>
+<option value="DESINELEC">DESINELEC</option>
+</select>
+</div>
+<div class="filter-group">
+<label>Aseguradora</label>
+<select class="filter-select" id="filterAseguradora" onchange="applyFilters()">
+<option value="">Todas</option>
+<option value="CONFIANZA">CONFIANZA</option>
+<option value="EQUISUIZA">EQUISUIZA</option>
+<option value="CHUBB">CHUBB</option>
+</select>
+</div>
+<div class="filter-group">
+<label>Estado</label>
+<select class="filter-select" id="filterEstado" onchange="applyFilters()">
+<option value="">Todos</option>
+<option value="ACTIVA">Activas (>30 días)</option>
+<option value="PROXIMA">Próximas (1-30 días)</option>
+<option value="VENCIDA">Vencidas</option>
+</select>
+</div>
+<div class="filter-group">
+<label>Buscar</label>
+<input type="text" class="filter-input" id="filterSearch" placeholder="Póliza, proyecto..." onkeyup="applyFilters()">
+</div>
+</div>
+<button class="btn-clear" onclick="clearFilters()">Limpiar Filtros</button>
+</div>
 
-            <!-- Table -->
-            <div class="table-section">
-                <div class="table-header">
-                    <h2>Pólizas (<span id="tableCount">0</span>)</h2>
-                    <button class="btn-export" onclick="exportCSV()">Exportar CSV</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Estado</th>
-                            <th>Póliza</th>
-                            <th>Contratante</th>
-                            <th>Tipo Fianza</th>
-                            <th>Proyecto</th>
-                            <th>Aseguradora</th>
-                            <th>Monto</th>
-                            <th>Fecha Exp.</th>
-                            <th>Días Rest.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<div class="section">
+<div class="table-header">
+<h2 class="section-title" style="margin:0">Listado de Pólizas (<span id="tableCount">0</span>)</h2>
+<button class="btn-export" onclick="exportData()">📥 Exportar CSV</button>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>N° Póliza</th>
+<th>Contratante</th>
+<th>Tipo de Fianza</th>
+<th>Proyecto</th>
+<th>Aseguradora</th>
+<th>Monto de Cobertura</th>
+<th>Prima</th>
+<th>Vencimiento</th>
+<th>Días Restantes</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 
-    <script>
-        // USERS
-        const users = [
-            {u: "etinar", p: "etinar2025"},
-            {u: "admin", p: "orchard2025"},
-            {u: "analista1", p: "analista2025"},
-            {u: "analista2", p: "analista2025"},
-            {u: "supervisor", p: "super2025"}
-        ];
+<script>
+const USERS=[{u:"etinar",p:"etinar2025",n:"Cliente Etinar"},{u:"admin",p:"orchard2025",n:"Administrador"},{u:"analista1",p:"analista2025",n:"Analista 1"},{u:"analista2",p:"analista2025",n:"Analista 2"},{u:"supervisor",p:"super2025",n:"Supervisor"}];
+const POLIZAS=[{"id":1,"contratante":"VIGERANO","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"362535","montoCobertura":100000.0,"prima":250.0,"fechaInicio":"2024-10-05","fechaExpiracion":"2025-01-03","diasRestantes":0,"diasTotales":90},{"id":2,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2024-10-08","fechaExpiracion":"2025-01-07","diasRestantes":0,"diasTotales":91},{"id":3,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2024-10-08","fechaExpiracion":"2025-01-07","diasRestantes":0,"diasTotales":91},{"id":4,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":35.72,"fechaInicio":"2024-11-09","fechaExpiracion":"2025-01-08","diasRestantes":0,"diasTotales":60},{"id":5,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":35.72,"fechaInicio":"2024-11-09","fechaExpiracion":"2025-01-08","diasRestantes":0,"diasTotales":60},{"id":6,"contratante":"ETINAR / INBALNOR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75498","montoCobertura":180042.65,"prima":133.18,"fechaInicio":"2024-05-29","fechaExpiracion":"2025-01-24","diasRestantes":0,"diasTotales":240},{"id":7,"contratante":"ETINAR / INBALNOR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"54989","montoCobertura":180042.65,"prima":1680.19,"fechaInicio":"2024-05-29","fechaExpiracion":"2025-01-29","diasRestantes":0,"diasTotales":245},{"id":8,"contratante":"LIPIDAVA","tipoFianza":"INCENDIO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"933","montoCobertura":1111268.88,"prima":2005.76,"fechaInicio":"2024-01-31","fechaExpiracion":"2025-01-31","diasRestantes":0,"diasTotales":366},{"id":9,"contratante":"VIGERANO / ETINAR","tipoFianza":"INCENDIO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"116174","montoCobertura":260000.0,"prima":188.65,"fechaInicio":"2025-01-07","fechaExpiracion":"2026-01-07","diasRestantes":0,"diasTotales":365},{"id":10,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73322","montoCobertura":342202.86,"prima":264.27,"fechaInicio":"2024-12-13","fechaExpiracion":"2025-11-02","diasRestantes":0,"diasTotales":324},{"id":11,"contratante":"ETINAR / INBALNOR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73363","montoCobertura":24549.68,"prima":38.27,"fechaInicio":"2024-12-25","fechaExpiracion":"2025-02-23","diasRestantes":0,"diasTotales":60},{"id":12,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":13,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":14,"contratante":"ETINAR / INBALNOR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"54989","montoCobertura":180000.0,"prima":1690.19,"fechaInicio":"2025-01-28","fechaExpiracion":"2025-02-28","diasRestantes":0,"diasTotales":31},{"id":15,"contratante":"ETINAR / INBALNOR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75498","montoCobertura":180042.65,"prima":133.18,"fechaInicio":"2025-01-28","fechaExpiracion":"2025-02-28","diasRestantes":0,"diasTotales":31},{"id":16,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":35.72,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":17,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":33.86,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":18,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"HIPERMARKET","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"182955","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-02-27","fechaExpiracion":"2025-07-27","diasRestantes":0,"diasTotales":150},{"id":19,"contratante":"DESINELEC / ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"HIPERMARKET","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"82155","montoCobertura":512784.47,"prima":18802.1,"fechaInicio":"2025-02-27","fechaExpiracion":"2025-12-19","diasRestantes":0,"diasTotales":295},{"id":20,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73322","montoCobertura":342202.86,"prima":264.27,"fechaInicio":"2024-12-13","fechaExpiracion":"2025-02-11","diasRestantes":0,"diasTotales":60},{"id":21,"contratante":"ETINAR / INBALNOR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73363","montoCobertura":24549.68,"prima":38.27,"fechaInicio":"2024-12-25","fechaExpiracion":"2025-02-23","diasRestantes":0,"diasTotales":60},{"id":22,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":23,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2025-01-28","fechaExpiracion":"2025-02-28","diasRestantes":0,"diasTotales":31},{"id":24,"contratante":"ETINAR / INBALNOR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"54989","montoCobertura":180042.65,"prima":1690.19,"fechaInicio":"2025-01-28","fechaExpiracion":"2025-02-28","diasRestantes":0,"diasTotales":31},{"id":25,"contratante":"ETINAR / INBALNOR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75498","montoCobertura":180042.65,"prima":133.18,"fechaInicio":"2025-01-28","fechaExpiracion":"2025-02-28","diasRestantes":0,"diasTotales":31},{"id":26,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":35.72,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":27,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":33.86,"fechaInicio":"2025-01-08","fechaExpiracion":"2025-02-07","diasRestantes":0,"diasTotales":30},{"id":28,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"HIPERMARKET","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"182955","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-02-27","fechaExpiracion":"2025-07-27","diasRestantes":0,"diasTotales":150},{"id":29,"contratante":"DESINELEC / ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"HIPERMARKET","aseguradora":"CONFIANZA","estado":"ACTIVA","numeroPoliza":"82155","montoCobertura":512784.47,"prima":18802.1,"fechaInicio":"2025-02-27","fechaExpiracion":"2026-12-19","diasRestantes":320,"diasTotales":660},{"id":30,"contratante":"DESINELEC / ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"HIPERMARKET","aseguradora":"CONFIANZA","estado":"POR VENCER","numeroPoliza":"499485","montoCobertura":512784.47,"prima":10398.13,"fechaInicio":"2025-02-27","fechaExpiracion":"2026-02-27","diasRestantes":25,"diasTotales":365},{"id":31,"contratante":"VIGERANO","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"362535","montoCobertura":100000.0,"prima":99.92,"fechaInicio":"2025-01-02","fechaExpiracion":"2025-03-05","diasRestantes":0,"diasTotales":62},{"id":32,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":33.86,"fechaInicio":"2025-02-07","fechaExpiracion":"2025-03-09","diasRestantes":0,"diasTotales":30},{"id":33,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":33.86,"fechaInicio":"2025-02-07","fechaExpiracion":"2025-03-09","diasRestantes":0,"diasTotales":30},{"id":34,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73322","montoCobertura":342202.86,"prima":264.27,"fechaInicio":"2025-02-11","fechaExpiracion":"2025-03-13","diasRestantes":0,"diasTotales":30},{"id":35,"contratante":"ETINAR","tipoFianza":"INCENDIO","proyecto":"GALERIAS TERRANOSTRA","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"92319","montoCobertura":11755343.52,"prima":21429.62,"fechaInicio":"2025-03-21","fechaExpiracion":"2026-03-21","diasRestantes":47,"diasTotales":365},{"id":36,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"POR VENCER","numeroPoliza":"50403","montoCobertura":27641610.9,"prima":21454.91,"fechaInicio":"2025-12-01","fechaExpiracion":"2026-03-02","diasRestantes":28,"diasTotales":91},{"id":37,"contratante":"VIGERANO","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"55554","montoCobertura":59563.62,"prima":327.45,"fechaInicio":"2025-10-24","fechaExpiracion":"2026-03-31","diasRestantes":57,"diasTotales":158},{"id":38,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"ETINAR BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73752","montoCobertura":500000.0,"prima":2219.18,"fechaInicio":"2024-10-24","fechaExpiracion":"2025-04-22","diasRestantes":0,"diasTotales":180},{"id":39,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"ETINAR BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76208","montoCobertura":1952644.49,"prima":8666.53,"fechaInicio":"2024-10-24","fechaExpiracion":"2025-04-22","diasRestantes":0,"diasTotales":180},{"id":40,"contratante":"VIGERANO","tipoFianza":"INCENDIO","proyecto":"","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"92330","montoCobertura":2557675.46,"prima":4172.28,"fechaInicio":"2025-04-10","fechaExpiracion":"2026-04-10","diasRestantes":67,"diasTotales":365},{"id":41,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73322","montoCobertura":342202.86,"prima":228.41,"fechaInicio":"2025-03-13","fechaExpiracion":"2025-04-14","diasRestantes":0,"diasTotales":32},{"id":42,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"HIPERMARKET SANTA ELENA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"184065","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-04-27","fechaExpiracion":"2025-09-24","diasRestantes":0,"diasTotales":150},{"id":43,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"PASEO SHOPPING SANTO DOMINGO","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"50420","montoCobertura":27676230.53,"prima":42623.09,"fechaInicio":"2025-04-16","fechaExpiracion":"2026-04-30","diasRestantes":87,"diasTotales":379},{"id":44,"contratante":"ETINAR","tipoFianza":"SERIEDAD DE OFERTA","proyecto":"ESPOL","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"106635","montoCobertura":150000.0,"prima":600.0,"fechaInicio":"2025-11-13","fechaExpiracion":"2026-04-22","diasRestantes":79,"diasTotales":160},{"id":45,"contratante":"ETINAR / INBALNOR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73363","montoCobertura":24549.68,"prima":38.27,"fechaInicio":"2025-02-23","fechaExpiracion":"2025-04-24","diasRestantes":0,"diasTotales":60},{"id":46,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":33.86,"fechaInicio":"2025-03-09","fechaExpiracion":"2025-05-08","diasRestantes":0,"diasTotales":60},{"id":47,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":33.86,"fechaInicio":"2025-03-09","fechaExpiracion":"2025-05-08","diasRestantes":0,"diasTotales":60},{"id":48,"contratante":"ETINAR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"ETINAR NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"55367","montoCobertura":1224534.98,"prima":6122.67,"fechaInicio":"2025-05-01","fechaExpiracion":"2026-05-01","diasRestantes":88,"diasTotales":365},{"id":49,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"ETINAR NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"74238","montoCobertura":3000000.0,"prima":13315.07,"fechaInicio":"2025-05-05","fechaExpiracion":"2025-11-01","diasRestantes":0,"diasTotales":180},{"id":50,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"ETINAR NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"77058","montoCobertura":2449069.96,"prima":22041.63,"fechaInicio":"2025-05-05","fechaExpiracion":"2026-05-05","diasRestantes":92,"diasTotales":365},{"id":51,"contratante":"ETINAR / INBALNOR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75498","montoCobertura":180042.65,"prima":399.55,"fechaInicio":"2025-02-23","fechaExpiracion":"2025-05-24","diasRestantes":0,"diasTotales":90},{"id":52,"contratante":"ETINAR / INBALNOR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"54989","montoCobertura":180042.65,"prima":1200.0,"fechaInicio":"2025-02-28","fechaExpiracion":"2025-05-28","diasRestantes":0,"diasTotales":89},{"id":53,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2025-02-07","fechaExpiracion":"2025-05-09","diasRestantes":0,"diasTotales":91},{"id":54,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2025-02-07","fechaExpiracion":"2025-05-09","diasRestantes":0,"diasTotales":91},{"id":55,"contratante":"VIGERANO","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"362535","montoCobertura":100000.0,"prima":199.92,"fechaInicio":"2025-03-06","fechaExpiracion":"2025-05-05","diasRestantes":0,"diasTotales":60},{"id":56,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"50403","montoCobertura":19526444.92,"prima":34780.16,"fechaInicio":"2024-11-07","fechaExpiracion":"2025-05-31","diasRestantes":0,"diasTotales":205},{"id":57,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"HIPERMARKET SANTA ELENA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"184065","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-05-27","fechaExpiracion":"2025-10-24","diasRestantes":0,"diasTotales":150},{"id":58,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"73322","montoCobertura":167470.29,"prima":123.88,"fechaInicio":"2025-04-12","fechaExpiracion":"2025-05-12","diasRestantes":0,"diasTotales":30},{"id":59,"contratante":"ETINAR","tipoFianza":"INCENDIO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"116123","montoCobertura":300000.0,"prima":512.0,"fechaInicio":"2024-10-27","fechaExpiracion":"2025-06-07","diasRestantes":0,"diasTotales":223},{"id":60,"contratante":"ETINAR","tipoFianza":"VEHICULOS","proyecto":"","aseguradora":"LATINA","estado":"VENCIDA","numeroPoliza":"315121","montoCobertura":18600.0,"prima":535.68,"fechaInicio":"2024-12-14","fechaExpiracion":"2025-06-07","diasRestantes":0,"diasTotales":175},{"id":61,"contratante":"ETINAR","tipoFianza":"INCENDIO","proyecto":"EDIFICIO MILENIUM","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"52080","montoCobertura":3000000.0,"prima":5055.77,"fechaInicio":"2024-06-23","fechaExpiracion":"2025-06-23","diasRestantes":0,"diasTotales":365},{"id":62,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":524254.42,"prima":387.8,"fechaInicio":"2024-12-23","fechaExpiracion":"2025-06-30","diasRestantes":0,"diasTotales":189},{"id":63,"contratante":"ETINAR / INBALNOR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75498","montoCobertura":180042.65,"prima":133.18,"fechaInicio":"2025-05-24","fechaExpiracion":"2025-06-23","diasRestantes":0,"diasTotales":30},{"id":64,"contratante":"ETINAR / INBALNOR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"54989","montoCobertura":180042.65,"prima":1200.0,"fechaInicio":"2025-05-28","fechaExpiracion":"2025-06-28","diasRestantes":0,"diasTotales":31},{"id":65,"contratante":"VIGERANO","tipoFianza":"INCENDIO","proyecto":"","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"92347","montoCobertura":1100000.0,"prima":1856.88,"fechaInicio":"2024-06-07","fechaExpiracion":"2026-06-07","diasRestantes":125,"diasTotales":730},{"id":66,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73915","montoCobertura":500000.0,"prima":2330.14,"fechaInicio":"2024-12-23","fechaExpiracion":"2025-06-30","diasRestantes":0,"diasTotales":189},{"id":67,"contratante":"ETINAR","tipoFianza":"VEHICULOS","proyecto":"","aseguradora":"LATINA","estado":"VENCIDA","numeroPoliza":"375260","montoCobertura":25000.0,"prima":350.0,"fechaInicio":"2024-11-21","fechaExpiracion":"2025-06-07","diasRestantes":0,"diasTotales":198},{"id":68,"contratante":"VIGERANO","tipoFianza":"INCENDIO","proyecto":"MACHIAVELO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"116174","montoCobertura":260000.0,"prima":188.65,"fechaInicio":"2025-01-07","fechaExpiracion":"2025-06-07","diasRestantes":0,"diasTotales":151},{"id":69,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76208","montoCobertura":1952644.49,"prima":4333.27,"fechaInicio":"2025-04-22","fechaExpiracion":"2025-07-21","diasRestantes":0,"diasTotales":90},{"id":70,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":1361.43,"fechaInicio":"2025-05-09","fechaExpiracion":"2025-07-09","diasRestantes":0,"diasTotales":61},{"id":71,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":833.33,"fechaInicio":"2025-05-09","fechaExpiracion":"2025-07-09","diasRestantes":0,"diasTotales":61},{"id":72,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"UNIDAD EDUCATIVA CARDENAL SPELLMAN","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75401","montoCobertura":122060.41,"prima":180.58,"fechaInicio":"2025-06-01","fechaExpiracion":"2025-07-31","diasRestantes":0,"diasTotales":60},{"id":73,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":524254.42,"prima":387.8,"fechaInicio":"2025-06-30","fechaExpiracion":"2025-07-30","diasRestantes":0,"diasTotales":30},{"id":74,"contratante":"VIGERANO","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":100000.0,"prima":83.33,"fechaInicio":"2025-05-05","fechaExpiracion":"2025-07-05","diasRestantes":0,"diasTotales":61},{"id":75,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"PASEO SHOPPING SANTO DOMINGO","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"50420","montoCobertura":27676230.53,"prima":42623.09,"fechaInicio":"2026-04-30","fechaExpiracion":"2026-07-31","diasRestantes":179,"diasTotales":92},{"id":76,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73752","montoCobertura":500000.0,"prima":1109.59,"fechaInicio":"2025-04-22","fechaExpiracion":"2025-07-21","diasRestantes":0,"diasTotales":90},{"id":77,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"FORET S.A.S.","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"73680","montoCobertura":21514.2,"prima":33.86,"fechaInicio":"2025-05-08","fechaExpiracion":"2025-07-07","diasRestantes":0,"diasTotales":60},{"id":78,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FORET S.A.S.","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76079","montoCobertura":5378.55,"prima":33.86,"fechaInicio":"2025-05-08","fechaExpiracion":"2025-07-05","diasRestantes":0,"diasTotales":58},{"id":79,"contratante":"VIGERANO","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"","aseguradora":"CONFIANZA","estado":"ACTIVA","numeroPoliza":"362535","montoCobertura":100000.0,"prima":83.33,"fechaInicio":"2025-08-05","fechaExpiracion":"2026-08-06","diasRestantes":185,"diasTotales":366},{"id":80,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"50403","montoCobertura":19526444.92,"prima":15608.66,"fechaInicio":"2025-05-31","fechaExpiracion":"2025-08-31","diasRestantes":0,"diasTotales":92},{"id":81,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":524254.42,"prima":387.8,"fechaInicio":"2025-07-30","fechaExpiracion":"2025-08-29","diasRestantes":0,"diasTotales":30},{"id":82,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"AGORA CIUDAD MEDICA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2025-07-10","fechaExpiracion":"2025-09-08","diasRestantes":0,"diasTotales":60},{"id":83,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"AGORA CIUDAD MEDICA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2025-07-10","fechaExpiracion":"2025-09-08","diasRestantes":0,"diasTotales":60},{"id":84,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76208","montoCobertura":1952644.49,"prima":3562.2,"fechaInicio":"2025-07-21","fechaExpiracion":"2025-09-30","diasRestantes":0,"diasTotales":71},{"id":85,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"HIPERMARKET SANTA ELENA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"184065","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-04-27","fechaExpiracion":"2025-09-24","diasRestantes":0,"diasTotales":150},{"id":86,"contratante":"ETINAR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"GALERIAS TERRANOSTRA","aseguradora":"CHUBB","estado":"VENCIDA","numeroPoliza":"377874","montoCobertura":1461876.0,"prima":2000.0,"fechaInicio":"2025-09-12","fechaExpiracion":"2025-09-12","diasRestantes":0,"diasTotales":0},{"id":87,"contratante":"VIGERANO","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"TERRANOSTRA GRANOLLER","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"220454","montoCobertura":1028498.0,"prima":2032.22,"fechaInicio":"2025-09-30","fechaExpiracion":"","diasRestantes":0,"diasTotales":0},{"id":88,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"CASA LAGUNA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"50410","montoCobertura":5962544.17,"prima":9957.45,"fechaInicio":"2024-12-01","fechaExpiracion":"2025-09-30","diasRestantes":0,"diasTotales":303},{"id":89,"contratante":"ETINAR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"GALERIAS TERRANOSTRA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"55494","montoCobertura":800000.0,"prima":1200.0,"fechaInicio":"","fechaExpiracion":"2025-02-09","diasRestantes":0,"diasTotales":0},{"id":90,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"UNIDAD EDUCATIVA CARDENAL SPELLMAN","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75401","montoCobertura":122060.41,"prima":180.58,"fechaInicio":"2025-07-31","fechaExpiracion":"2025-10-29","diasRestantes":0,"diasTotales":90},{"id":91,"contratante":"DESINELEC / ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"PASEO SHOPPING SANTO DOMINGO","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"185055","montoCobertura":320490.29,"prima":2670.75,"fechaInicio":"2025-05-27","fechaExpiracion":"2025-10-24","diasRestantes":0,"diasTotales":150},{"id":92,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO VIAL UNO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":524254.42,"prima":387.8,"fechaInicio":"2025-08-29","fechaExpiracion":"2025-10-28","diasRestantes":0,"diasTotales":60},{"id":93,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76208","montoCobertura":1952644.49,"prima":3562.2,"fechaInicio":"2025-09-30","fechaExpiracion":"2025-10-30","diasRestantes":0,"diasTotales":30},{"id":94,"contratante":"VIGERANO","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"55554","montoCobertura":59563.62,"prima":327.45,"fechaInicio":"2025-10-24","fechaExpiracion":"2026-03-31","diasRestantes":57,"diasTotales":158},{"id":95,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"74238","montoCobertura":2817595.02,"prima":2084.25,"fechaInicio":"2025-05-05","fechaExpiracion":"2025-11-01","diasRestantes":0,"diasTotales":180},{"id":96,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76208","montoCobertura":1952644.49,"prima":2888.84,"fechaInicio":"2025-10-30","fechaExpiracion":"2025-11-30","diasRestantes":0,"diasTotales":31},{"id":97,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"UNIDAD EDUCATIVA CARDENAL SPELLMAN","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"75401","montoCobertura":122060.41,"prima":270.87,"fechaInicio":"2025-10-29","fechaExpiracion":"2025-11-28","diasRestantes":0,"diasTotales":30},{"id":98,"contratante":"ETINAR","tipoFianza":"SERIEDAD DE OFERTA","proyecto":"ESPOL","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"106635","montoCobertura":150000.0,"prima":600.0,"fechaInicio":"","fechaExpiracion":"2025-11-13","diasRestantes":0,"diasTotales":0},{"id":99,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO VIAL UNO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"76536","montoCobertura":524254.42,"prima":387.8,"fechaInicio":"2025-10-28","fechaExpiracion":"2025-11-27","diasRestantes":0,"diasTotales":30},{"id":100,"contratante":"ETINAR","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"FIDEICOMISO MERCANTIL REITS PINK EL BUIJO","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"50403","montoCobertura":27641610.9,"prima":21454.91,"fechaInicio":"2025-08-31","fechaExpiracion":"2025-11-30","diasRestantes":0,"diasTotales":91},{"id":101,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"74238","montoCobertura":2817595.02,"prima":2084.25,"fechaInicio":"2025-11-01","fechaExpiracion":"2025-12-01","diasRestantes":0,"diasTotales":30},{"id":102,"contratante":"VIGERANO","tipoFianza":"TODO RIESGO CONSTRUCCION","proyecto":"TERRANOSTRA GRANOLLER","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"220454","montoCobertura":1028498.0,"prima":2032.22,"fechaInicio":"2025-09-30","fechaExpiracion":"2025-12-30","diasRestantes":0,"diasTotales":91},{"id":103,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"UNIDAD EDUCATIVA CARDENAL SPELLMAN","aseguradora":"EQUISUIZA","estado":"ACTIVA","numeroPoliza":"75401","montoCobertura":122060.41,"prima":90.29,"fechaInicio":"2025-11-28","fechaExpiracion":"2026-12-28","diasRestantes":329,"diasTotales":395},{"id":104,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"NUCLEO DE SOLCA MACHALA","aseguradora":"EQUISUIZA","estado":"VENCIDA","numeroPoliza":"74238","montoCobertura":2817595.02,"prima":2084.25,"fechaInicio":"2025-12-01","fechaExpiracion":"2025-12-31","diasRestantes":0,"diasTotales":30},{"id":105,"contratante":"ETINAR","tipoFianza":"FIEL CUMPLIMIENTO DE CONTRATO","proyecto":"AGORA CIUDAD MEDICA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"499485","montoCobertura":816857.56,"prima":2042.14,"fechaInicio":"2025-09-08","fechaExpiracion":"2025-12-08","diasRestantes":0,"diasTotales":91},{"id":106,"contratante":"ETINAR","tipoFianza":"BUEN USO DE ANTICIPO","proyecto":"AGORA CIUDAD MEDICA","aseguradora":"CONFIANZA","estado":"VENCIDA","numeroPoliza":"465225","montoCobertura":500000.0,"prima":1250.0,"fechaInicio":"2025-09-08","fechaExpiracion":"2025-12-08","diasRestantes":0,"diasTotales":91},{"id":107,"contratante":"ETINAR","tipoFianza":"RESPONSABILIDAD CIVIL","proyecto":"GALERIAS TERRANOSTRA","aseguradora":"CHUBB","estado":"VENCIDA","numeroPoliza":"377874","montoCobertura":1461876.0,"prima":2000.0,"fechaInicio":"2025-09-12","fechaExpiracion":"2025-12-11","diasRestantes":0,"diasTotales":90}];
 
-        // DATA - This will be replaced with real data
-        let POLIZAS = [];
+let currentUser=null;
 
-        function login(e) {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const valid = users.find(x => x.u === u && x.p === p);
-            
-            if (valid) {
-                document.getElementById('loginPage').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                loadData();
-            } else {
-                const err = document.getElementById('error');
-                err.textContent = 'Usuario o contraseña incorrectos';
-                err.style.display = 'block';
-            }
-            return false;
-        }
+function handleLogin(e){
+e.preventDefault();
+const u=document.getElementById('username').value;
+const p=document.getElementById('password').value;
+const user=USERS.find(x=>x.u===u&&x.p===p);
+if(user){
+currentUser=user;
+document.getElementById('loginPage').style.display='none';
+document.getElementById('dashboard').classList.add('active');
+document.getElementById('userBadge').textContent=user.n;
+loadDashboard();
+}else{
+const err=document.getElementById('errorMsg');
+err.textContent='Usuario o contraseña incorrectos';
+err.style.display='block';
+}
+return false;
+}
 
-        function logout() {
-            document.getElementById('loginPage').style.display = 'flex';
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
+function handleLogout(){
+currentUser=null;
+document.getElementById('loginPage').style.display='flex';
+document.getElementById('dashboard').classList.remove('active');
+document.getElementById('username').value='';
+document.getElementById('password').value='';
+document.getElementById('errorMsg').style.display='none';
+}
 
-        function loadData() {
-            // Stats
-            const total = POLIZAS.length;
-            const vencidas = POLIZAS.filter(p => p.diasRestantes <= 0).length;
-            const proximas = POLIZAS.filter(p => p.diasRestantes > 0 && p.diasRestantes <= 30).length;
-            const monto = POLIZAS.reduce((sum, p) => sum + p.montoCobertura, 0);
+function loadDashboard(){
+const total=POLIZAS.length;
+const vencidas=POLIZAS.filter(p=>p.diasRestantes<=0).length;
+const proximas=POLIZAS.filter(p=>p.diasRestantes>0&&p.diasRestantes<=30).length;
+const monto=POLIZAS.reduce((s,p)=>s+p.montoCobertura,0);
 
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statVencidas').textContent = vencidas;
-            document.getElementById('statProximas').textContent = proximas;
-            document.getElementById('statMonto').textContent = '$' + monto.toLocaleString('es-EC', {maximumFractionDigits: 0});
+document.getElementById('metricTotal').textContent=total;
+document.getElementById('metricVencidas').textContent=vencidas;
+document.getElementById('metricProximas').textContent=proximas;
+document.getElementById('metricMonto').textContent='$'+monto.toLocaleString('es-EC',{maximumFractionDigits:0});
 
-            filterTable();
-        }
+applyFilters();
+}
 
-        function filterTable() {
-            const contratante = document.getElementById('filterContratante').value;
-            const aseguradora = document.getElementById('filterAseguradora').value;
-            const estado = document.getElementById('filterEstado').value;
-            const search = document.getElementById('filterSearch').value.toLowerCase();
+function applyFilters(){
+const contratante=document.getElementById('filterContratante').value;
+const aseguradora=document.getElementById('filterAseguradora').value;
+const estado=document.getElementById('filterEstado').value;
+const search=document.getElementById('filterSearch').value.toLowerCase();
 
-            let filtered = POLIZAS.filter(p => {
-                if (contratante && !p.contratante.includes(contratante)) return false;
-                if (aseguradora && p.aseguradora !== aseguradora) return false;
-                if (estado) {
-                    if (estado === 'VENCIDA' && p.diasRestantes > 0) return false;
-                    if (estado === 'PROXIMA' && (p.diasRestantes <= 0 || p.diasRestantes > 30)) return false;
-                    if (estado === 'ACTIVA' && p.diasRestantes <= 30) return false;
-                }
-                if (search && !p.numeroPoliza.toLowerCase().includes(search) && 
-                    !(p.proyecto && p.proyecto.toLowerCase().includes(search)) &&
-                    !p.contratante.toLowerCase().includes(search)) return false;
-                return true;
-            });
+let filtered=POLIZAS.filter(p=>{
+if(contratante&&!p.contratante.includes(contratante))return false;
+if(aseguradora&&p.aseguradora!==aseguradora)return false;
+if(estado){
+if(estado==='VENCIDA'&&p.diasRestantes>0)return false;
+if(estado==='PROXIMA'&&(p.diasRestantes<=0||p.diasRestantes>30))return false;
+if(estado==='ACTIVA'&&p.diasRestantes<=30)return false;
+}
+if(search&&!p.numeroPoliza.toLowerCase().includes(search)&&!(p.proyecto||'').toLowerCase().includes(search)&&!p.contratante.toLowerCase().includes(search))return false;
+return true;
+});
 
-            document.getElementById('tableCount').textContent = filtered.length;
+document.getElementById('tableCount').textContent=filtered.length;
+renderTable(filtered);
+}
 
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = filtered.map(p => `
-                <tr>
-                    <td>${getStatusBadge(p.diasRestantes)}</td>
-                    <td><strong>${p.numeroPoliza}</strong></td>
-                    <td>${p.contratante}</td>
-                    <td>${p.tipoFianza}</td>
-                    <td>${p.proyecto || '-'}</td>
-                    <td><span class="tag ${p.aseguradora.toLowerCase()}">${p.aseguradora}</span></td>
-                    <td>$${p.montoCobertura.toLocaleString('es-EC')}</td>
-                    <td>${formatDate(p.fechaExpiracion)}</td>
-                    <td style="color: ${p.diasRestantes <= 0 ? 'var(--red)' : p.diasRestantes <= 30 ? '#856404' : 'var(--green-light)'}">
-                        <strong>${p.diasRestantes <= 0 ? 'Vencida' : p.diasRestantes + ' días'}</strong>
-                    </td>
-                </tr>
-            `).join('');
-        }
+function renderTable(data){
+const tbody=document.getElementById('tableBody');
+tbody.innerHTML=data.map(p=>{
+let statusClass='vencida',statusText='VENCIDA',dotClass='red';
+if(p.diasRestantes>30){statusClass='activa';statusText='ACTIVA';dotClass='green';}
+else if(p.diasRestantes>0){statusClass='proxima';statusText='PRÓXIMA';dotClass='yellow';}
 
-        function getStatusBadge(dias) {
-            if (dias <= 0) return '<span class="badge vencida"><span class="dot red"></span> Vencida</span>';
-            if (dias <= 30) return '<span class="badge proxima"><span class="dot yellow"></span> Próxima</span>';
-            return '<span class="badge activa"><span class="dot green"></span> Activa</span>';
-        }
+return`<tr>
+<td><span class="status-badge ${statusClass}"><span class="dot ${dotClass}"></span>${statusText}</span></td>
+<td><strong>${p.numeroPoliza}</strong></td>
+<td>${p.contratante}</td>
+<td>${p.tipoFianza}</td>
+<td>${p.proyecto||'-'}</td>
+<td><span class="tag ${p.aseguradora.toLowerCase()}">${p.aseguradora}</span></td>
+<td class="money">$${p.montoCobertura.toLocaleString('es-EC')}</td>
+<td>$${p.prima.toLocaleString('es-EC')}</td>
+<td>${formatDate(p.fechaExpiracion)}</td>
+<td><strong style="color:${p.diasRestantes<=0?'var(--danger)':p.diasRestantes<=30?'var(--warning)':'var(--success)'}">${p.diasRestantes<=0?'Vencida':p.diasRestantes+' días'}</strong></td>
+</tr>`;
+}).join('');
+}
 
-        function formatDate(d) {
-            if (!d) return '-';
-            const date = new Date(d);
-            return date.toLocaleDateString('es-EC', {year: 'numeric', month: 'short', day: 'numeric'});
-        }
+function clearFilters(){
+document.getElementById('filterContratante').value='';
+document.getElementById('filterAseguradora').value='';
+document.getElementById('filterEstado').value='';
+document.getElementById('filterSearch').value='';
+applyFilters();
+}
 
-        function exportCSV() {
-            const csv = [['Póliza','Contratante','Tipo','Proyecto','Aseguradora','Monto','Fecha Exp','Días']];
-            POLIZAS.forEach(p => {
-                csv.push([p.numeroPoliza, p.contratante, p.tipoFianza, p.proyecto||'', p.aseguradora, p.montoCobertura, p.fechaExpiracion, p.diasRestantes]);
-            });
-            const content = csv.map(row => row.join(',')).join('\\n');
-            const blob = new Blob([content], {type: 'text/csv'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'polizas_etinar.csv';
-            a.click();
-        }
+function formatDate(d){
+if(!d)return'-';
+const date=new Date(d);
+return date.toLocaleDateString('es-EC',{year:'numeric',month:'short',day:'numeric'});
+}
 
-        POLIZAS = [
-        {
-                "id": 1,
-                "contratante": "VIGERANO",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "362535",
-                "montoCobertura": 100000.0,
-                "prima": 250.0,
-                "fechaInicio": "2024-10-05",
-                "fechaExpiracion": "2025-01-03",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        },
-        {
-                "id": 2,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2024-10-08",
-                "fechaExpiracion": "2025-01-07",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 3,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2024-10-08",
-                "fechaExpiracion": "2025-01-07",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 4,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 35.72,
-                "fechaInicio": "2024-11-09",
-                "fechaExpiracion": "2025-01-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 5,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 35.72,
-                "fechaInicio": "2024-11-09",
-                "fechaExpiracion": "2025-01-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 6,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75498",
-                "montoCobertura": 180042.65,
-                "prima": 133.18,
-                "fechaInicio": "2024-05-29",
-                "fechaExpiracion": "2025-01-24",
-                "diasRestantes": 0,
-                "diasTotales": 240
-        },
-        {
-                "id": 7,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "54989",
-                "montoCobertura": 180042.65,
-                "prima": 1680.19,
-                "fechaInicio": "2024-05-29",
-                "fechaExpiracion": "2025-01-29",
-                "diasRestantes": 0,
-                "diasTotales": 245
-        },
-        {
-                "id": 8,
-                "contratante": "LIPIDAVA",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "933",
-                "montoCobertura": 1111268.88,
-                "prima": 2005.76,
-                "fechaInicio": "2024-01-31",
-                "fechaExpiracion": "2025-01-31",
-                "diasRestantes": 0,
-                "diasTotales": 366
-        },
-        {
-                "id": 9,
-                "contratante": "VIGERANO / ETINAR",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "116174",
-                "montoCobertura": 260000.0,
-                "prima": 188.65,
-                "fechaInicio": "2025-01-07",
-                "fechaExpiracion": "2026-01-07",
-                "diasRestantes": 0,
-                "diasTotales": 365
-        },
-        {
-                "id": 10,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73322",
-                "montoCobertura": 342202.86,
-                "prima": 264.27,
-                "fechaInicio": "2024-12-13",
-                "fechaExpiracion": "2025-11-02",
-                "diasRestantes": 0,
-                "diasTotales": 324
-        },
-        {
-                "id": 11,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73363",
-                "montoCobertura": 24549.68,
-                "prima": 38.27,
-                "fechaInicio": "2024-12-25",
-                "fechaExpiracion": "2025-02-23",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 12,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 13,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 14,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "54989",
-                "montoCobertura": 180000.0,
-                "prima": 1690.19,
-                "fechaInicio": "2025-01-28",
-                "fechaExpiracion": "2025-02-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 15,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75498",
-                "montoCobertura": 180042.65,
-                "prima": 133.18,
-                "fechaInicio": "2025-01-28",
-                "fechaExpiracion": "2025-02-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 16,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 35.72,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 17,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 33.86,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 18,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "HIPERMARKET",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "182955",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-02-27",
-                "fechaExpiracion": "2025-07-27",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 19,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "HIPERMARKET",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "82155",
-                "montoCobertura": 512784.47,
-                "prima": 18802.1,
-                "fechaInicio": "2025-02-27",
-                "fechaExpiracion": "2025-12-19",
-                "diasRestantes": 0,
-                "diasTotales": 295
-        },
-        {
-                "id": 20,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73322",
-                "montoCobertura": 342202.86,
-                "prima": 264.27,
-                "fechaInicio": "2024-12-13",
-                "fechaExpiracion": "2025-02-11",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 21,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73363",
-                "montoCobertura": 24549.68,
-                "prima": 38.27,
-                "fechaInicio": "2024-12-25",
-                "fechaExpiracion": "2025-02-23",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 22,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 23,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2025-01-28",
-                "fechaExpiracion": "2025-02-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 24,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "54989",
-                "montoCobertura": 180042.65,
-                "prima": 1690.19,
-                "fechaInicio": "2025-01-28",
-                "fechaExpiracion": "2025-02-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 25,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75498",
-                "montoCobertura": 180042.65,
-                "prima": 133.18,
-                "fechaInicio": "2025-01-28",
-                "fechaExpiracion": "2025-02-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 26,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 35.72,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 27,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 33.86,
-                "fechaInicio": "2025-01-08",
-                "fechaExpiracion": "2025-02-07",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 28,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "HIPERMARKET",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "182955",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-02-27",
-                "fechaExpiracion": "2025-07-27",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 29,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "HIPERMARKET",
-                "aseguradora": "CONFIANZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "82155",
-                "montoCobertura": 512784.47,
-                "prima": 18802.1,
-                "fechaInicio": "2025-02-27",
-                "fechaExpiracion": "2026-12-19",
-                "diasRestantes": 320,
-                "diasTotales": 660
-        },
-        {
-                "id": 30,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "HIPERMARKET",
-                "aseguradora": "CONFIANZA",
-                "estado": "POR VENCER",
-                "numeroPoliza": "499485",
-                "montoCobertura": 512784.47,
-                "prima": 10398.13,
-                "fechaInicio": "2025-02-27",
-                "fechaExpiracion": "2026-02-27",
-                "diasRestantes": 25,
-                "diasTotales": 365
-        },
-        {
-                "id": 31,
-                "contratante": "VIGERANO",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "362535",
-                "montoCobertura": 100000.0,
-                "prima": 99.92,
-                "fechaInicio": "2025-01-02",
-                "fechaExpiracion": "2025-03-05",
-                "diasRestantes": 0,
-                "diasTotales": 62
-        },
-        {
-                "id": 32,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 33.86,
-                "fechaInicio": "2025-02-07",
-                "fechaExpiracion": "2025-03-09",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 33,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 33.86,
-                "fechaInicio": "2025-02-07",
-                "fechaExpiracion": "2025-03-09",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 34,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73322",
-                "montoCobertura": 342202.86,
-                "prima": 264.27,
-                "fechaInicio": "2025-02-11",
-                "fechaExpiracion": "2025-03-13",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 35,
-                "contratante": "ETINAR",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "GALERIAS TERRANOSTRA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "92319",
-                "montoCobertura": 11755343.52,
-                "prima": 21429.62,
-                "fechaInicio": "2025-03-21",
-                "fechaExpiracion": "2026-03-21",
-                "diasRestantes": 47,
-                "diasTotales": 365
-        },
-        {
-                "id": 36,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "POR VENCER",
-                "numeroPoliza": "50403",
-                "montoCobertura": 27641610.9,
-                "prima": 21454.91,
-                "fechaInicio": "2025-12-01",
-                "fechaExpiracion": "2026-03-02",
-                "diasRestantes": 28,
-                "diasTotales": 91
-        },
-        {
-                "id": 37,
-                "contratante": "VIGERANO",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "55554",
-                "montoCobertura": 59563.62,
-                "prima": 327.45,
-                "fechaInicio": "2025-10-24",
-                "fechaExpiracion": "2026-03-31",
-                "diasRestantes": 57,
-                "diasTotales": 158
-        },
-        {
-                "id": 38,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "ETINAR BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73752",
-                "montoCobertura": 500000.0,
-                "prima": 2219.18,
-                "fechaInicio": "2024-10-24",
-                "fechaExpiracion": "2025-04-22",
-                "diasRestantes": 0,
-                "diasTotales": 180
-        },
-        {
-                "id": 39,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "ETINAR BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76208",
-                "montoCobertura": 1952644.49,
-                "prima": 8666.53,
-                "fechaInicio": "2024-10-24",
-                "fechaExpiracion": "2025-04-22",
-                "diasRestantes": 0,
-                "diasTotales": 180
-        },
-        {
-                "id": 40,
-                "contratante": "VIGERANO",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "92330",
-                "montoCobertura": 2557675.46,
-                "prima": 4172.28,
-                "fechaInicio": "2025-04-10",
-                "fechaExpiracion": "2026-04-10",
-                "diasRestantes": 67,
-                "diasTotales": 365
-        },
-        {
-                "id": 41,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73322",
-                "montoCobertura": 342202.86,
-                "prima": 228.41,
-                "fechaInicio": "2025-03-13",
-                "fechaExpiracion": "2025-04-14",
-                "diasRestantes": 0,
-                "diasTotales": 32
-        },
-        {
-                "id": 42,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "HIPERMARKET SANTA ELENA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "184065",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-04-27",
-                "fechaExpiracion": "2025-09-24",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 43,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "PASEO SHOPPING SANTO DOMINGO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "50420",
-                "montoCobertura": 27676230.53,
-                "prima": 42623.09,
-                "fechaInicio": "2025-04-16",
-                "fechaExpiracion": "2026-04-30",
-                "diasRestantes": 87,
-                "diasTotales": 379
-        },
-        {
-                "id": 44,
-                "contratante": "ETINAR",
-                "tipoFianza": "SERIEDAD DE OFERTA",
-                "proyecto": "ESPOL",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "106635",
-                "montoCobertura": 150000.0,
-                "prima": 600.0,
-                "fechaInicio": "2025-11-13",
-                "fechaExpiracion": "2026-04-22",
-                "diasRestantes": 79,
-                "diasTotales": 160
-        },
-        {
-                "id": 45,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73363",
-                "montoCobertura": 24549.68,
-                "prima": 38.27,
-                "fechaInicio": "2025-02-23",
-                "fechaExpiracion": "2025-04-24",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 46,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 33.86,
-                "fechaInicio": "2025-03-09",
-                "fechaExpiracion": "2025-05-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 47,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 33.86,
-                "fechaInicio": "2025-03-09",
-                "fechaExpiracion": "2025-05-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 48,
-                "contratante": "ETINAR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "ETINAR NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "55367",
-                "montoCobertura": 1224534.98,
-                "prima": 6122.67,
-                "fechaInicio": "2025-05-01",
-                "fechaExpiracion": "2026-05-01",
-                "diasRestantes": 88,
-                "diasTotales": 365
-        },
-        {
-                "id": 49,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "ETINAR NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "74238",
-                "montoCobertura": 3000000.0,
-                "prima": 13315.07,
-                "fechaInicio": "2025-05-05",
-                "fechaExpiracion": "2025-11-01",
-                "diasRestantes": 0,
-                "diasTotales": 180
-        },
-        {
-                "id": 50,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "ETINAR NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "77058",
-                "montoCobertura": 2449069.96,
-                "prima": 22041.63,
-                "fechaInicio": "2025-05-05",
-                "fechaExpiracion": "2026-05-05",
-                "diasRestantes": 92,
-                "diasTotales": 365
-        },
-        {
-                "id": 51,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75498",
-                "montoCobertura": 180042.65,
-                "prima": 399.55,
-                "fechaInicio": "2025-02-23",
-                "fechaExpiracion": "2025-05-24",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        },
-        {
-                "id": 52,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "54989",
-                "montoCobertura": 180042.65,
-                "prima": 1200.0,
-                "fechaInicio": "2025-02-28",
-                "fechaExpiracion": "2025-05-28",
-                "diasRestantes": 0,
-                "diasTotales": 89
-        },
-        {
-                "id": 53,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2025-02-07",
-                "fechaExpiracion": "2025-05-09",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 54,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2025-02-07",
-                "fechaExpiracion": "2025-05-09",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 55,
-                "contratante": "VIGERANO",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "362535",
-                "montoCobertura": 100000.0,
-                "prima": 199.92,
-                "fechaInicio": "2025-03-06",
-                "fechaExpiracion": "2025-05-05",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 56,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "50403",
-                "montoCobertura": 19526444.92,
-                "prima": 34780.16,
-                "fechaInicio": "2024-11-07",
-                "fechaExpiracion": "2025-05-31",
-                "diasRestantes": 0,
-                "diasTotales": 205
-        },
-        {
-                "id": 57,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "HIPERMARKET SANTA ELENA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "184065",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-05-27",
-                "fechaExpiracion": "2025-10-24",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 58,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73322",
-                "montoCobertura": 167470.29,
-                "prima": 123.88,
-                "fechaInicio": "2025-04-12",
-                "fechaExpiracion": "2025-05-12",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 59,
-                "contratante": "ETINAR",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "116123",
-                "montoCobertura": 300000.0,
-                "prima": 512.0,
-                "fechaInicio": "2024-10-27",
-                "fechaExpiracion": "2025-06-07",
-                "diasRestantes": 0,
-                "diasTotales": 223
-        },
-        {
-                "id": 60,
-                "contratante": "ETINAR",
-                "tipoFianza": "VEHICULOS",
-                "proyecto": "",
-                "aseguradora": "LATINA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "315121",
-                "montoCobertura": 18600.0,
-                "prima": 535.68,
-                "fechaInicio": "2024-12-14",
-                "fechaExpiracion": "2025-06-07",
-                "diasRestantes": 0,
-                "diasTotales": 175
-        },
-        {
-                "id": 61,
-                "contratante": "ETINAR",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "EDIFICIO MILENIUM",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "52080",
-                "montoCobertura": 3000000.0,
-                "prima": 5055.77,
-                "fechaInicio": "2024-06-23",
-                "fechaExpiracion": "2025-06-23",
-                "diasRestantes": 0,
-                "diasTotales": 365
-        },
-        {
-                "id": 62,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 524254.42,
-                "prima": 387.8,
-                "fechaInicio": "2024-12-23",
-                "fechaExpiracion": "2025-06-30",
-                "diasRestantes": 0,
-                "diasTotales": 189
-        },
-        {
-                "id": 63,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75498",
-                "montoCobertura": 180042.65,
-                "prima": 133.18,
-                "fechaInicio": "2025-05-24",
-                "fechaExpiracion": "2025-06-23",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 64,
-                "contratante": "ETINAR / INBALNOR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "54989",
-                "montoCobertura": 180042.65,
-                "prima": 1200.0,
-                "fechaInicio": "2025-05-28",
-                "fechaExpiracion": "2025-06-28",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 65,
-                "contratante": "VIGERANO",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "92347",
-                "montoCobertura": 1100000.0,
-                "prima": 1856.88,
-                "fechaInicio": "2024-06-07",
-                "fechaExpiracion": "2026-06-07",
-                "diasRestantes": 125,
-                "diasTotales": 730
-        },
-        {
-                "id": 66,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73915",
-                "montoCobertura": 500000.0,
-                "prima": 2330.14,
-                "fechaInicio": "2024-12-23",
-                "fechaExpiracion": "2025-06-30",
-                "diasRestantes": 0,
-                "diasTotales": 189
-        },
-        {
-                "id": 67,
-                "contratante": "ETINAR",
-                "tipoFianza": "VEHICULOS",
-                "proyecto": "",
-                "aseguradora": "LATINA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "375260",
-                "montoCobertura": 25000.0,
-                "prima": 350.0,
-                "fechaInicio": "2024-11-21",
-                "fechaExpiracion": "2025-06-07",
-                "diasRestantes": 0,
-                "diasTotales": 198
-        },
-        {
-                "id": 68,
-                "contratante": "VIGERANO",
-                "tipoFianza": "INCENDIO",
-                "proyecto": "MACHIAVELO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "116174",
-                "montoCobertura": 260000.0,
-                "prima": 188.65,
-                "fechaInicio": "2025-01-07",
-                "fechaExpiracion": "2025-06-07",
-                "diasRestantes": 0,
-                "diasTotales": 151
-        },
-        {
-                "id": 69,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76208",
-                "montoCobertura": 1952644.49,
-                "prima": 4333.27,
-                "fechaInicio": "2025-04-22",
-                "fechaExpiracion": "2025-07-21",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        },
-        {
-                "id": 70,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 1361.43,
-                "fechaInicio": "2025-05-09",
-                "fechaExpiracion": "2025-07-09",
-                "diasRestantes": 0,
-                "diasTotales": 61
-        },
-        {
-                "id": 71,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 833.33,
-                "fechaInicio": "2025-05-09",
-                "fechaExpiracion": "2025-07-09",
-                "diasRestantes": 0,
-                "diasTotales": 61
-        },
-        {
-                "id": 72,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "UNIDAD EDUCATIVA CARDENAL SPELLMAN",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75401",
-                "montoCobertura": 122060.41,
-                "prima": 180.58,
-                "fechaInicio": "2025-06-01",
-                "fechaExpiracion": "2025-07-31",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 73,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 524254.42,
-                "prima": 387.8,
-                "fechaInicio": "2025-06-30",
-                "fechaExpiracion": "2025-07-30",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 74,
-                "contratante": "VIGERANO",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 100000.0,
-                "prima": 83.33,
-                "fechaInicio": "2025-05-05",
-                "fechaExpiracion": "2025-07-05",
-                "diasRestantes": 0,
-                "diasTotales": 61
-        },
-        {
-                "id": 75,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "PASEO SHOPPING SANTO DOMINGO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "50420",
-                "montoCobertura": 27676230.53,
-                "prima": 42623.09,
-                "fechaInicio": "2026-04-30",
-                "fechaExpiracion": "2026-07-31",
-                "diasRestantes": 179,
-                "diasTotales": 92
-        },
-        {
-                "id": 76,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73752",
-                "montoCobertura": 500000.0,
-                "prima": 1109.59,
-                "fechaInicio": "2025-04-22",
-                "fechaExpiracion": "2025-07-21",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        },
-        {
-                "id": 77,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "FORET S.A.S.",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "73680",
-                "montoCobertura": 21514.2,
-                "prima": 33.86,
-                "fechaInicio": "2025-05-08",
-                "fechaExpiracion": "2025-07-07",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 78,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FORET S.A.S.",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76079",
-                "montoCobertura": 5378.55,
-                "prima": 33.86,
-                "fechaInicio": "2025-05-08",
-                "fechaExpiracion": "2025-07-05",
-                "diasRestantes": 0,
-                "diasTotales": 58
-        },
-        {
-                "id": 79,
-                "contratante": "VIGERANO",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "",
-                "aseguradora": "CONFIANZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "362535",
-                "montoCobertura": 100000.0,
-                "prima": 83.33,
-                "fechaInicio": "2025-08-05",
-                "fechaExpiracion": "2026-08-06",
-                "diasRestantes": 185,
-                "diasTotales": 366
-        },
-        {
-                "id": 80,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "50403",
-                "montoCobertura": 19526444.92,
-                "prima": 15608.66,
-                "fechaInicio": "2025-05-31",
-                "fechaExpiracion": "2025-08-31",
-                "diasRestantes": 0,
-                "diasTotales": 92
-        },
-        {
-                "id": 81,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 524254.42,
-                "prima": 387.8,
-                "fechaInicio": "2025-07-30",
-                "fechaExpiracion": "2025-08-29",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 82,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "AGORA CIUDAD MEDICA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2025-07-10",
-                "fechaExpiracion": "2025-09-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 83,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "AGORA CIUDAD MEDICA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2025-07-10",
-                "fechaExpiracion": "2025-09-08",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 84,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76208",
-                "montoCobertura": 1952644.49,
-                "prima": 3562.2,
-                "fechaInicio": "2025-07-21",
-                "fechaExpiracion": "2025-09-30",
-                "diasRestantes": 0,
-                "diasTotales": 71
-        },
-        {
-                "id": 85,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "HIPERMARKET SANTA ELENA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "184065",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-04-27",
-                "fechaExpiracion": "2025-09-24",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 86,
-                "contratante": "ETINAR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "GALERIAS TERRANOSTRA",
-                "aseguradora": "CHUBB",
-                "estado": "VENCIDA",
-                "numeroPoliza": "377874",
-                "montoCobertura": 1461876.0,
-                "prima": 2000.0,
-                "fechaInicio": "2025-09-12",
-                "fechaExpiracion": "2025-09-12",
-                "diasRestantes": 0,
-                "diasTotales": 0
-        },
-        {
-                "id": 87,
-                "contratante": "VIGERANO",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "TERRANOSTRA GRANOLLER",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "220454",
-                "montoCobertura": 1028498.0,
-                "prima": 2032.22,
-                "fechaInicio": "2025-09-30",
-                "fechaExpiracion": "",
-                "diasRestantes": 0,
-                "diasTotales": 0
-        },
-        {
-                "id": 88,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "CASA LAGUNA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "50410",
-                "montoCobertura": 5962544.17,
-                "prima": 9957.45,
-                "fechaInicio": "2024-12-01",
-                "fechaExpiracion": "2025-09-30",
-                "diasRestantes": 0,
-                "diasTotales": 303
-        },
-        {
-                "id": 89,
-                "contratante": "ETINAR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "GALERIAS TERRANOSTRA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "55494",
-                "montoCobertura": 800000.0,
-                "prima": 1200.0,
-                "fechaInicio": "",
-                "fechaExpiracion": "2025-02-09",
-                "diasRestantes": 0,
-                "diasTotales": 0
-        },
-        {
-                "id": 90,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "UNIDAD EDUCATIVA CARDENAL SPELLMAN",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75401",
-                "montoCobertura": 122060.41,
-                "prima": 180.58,
-                "fechaInicio": "2025-07-31",
-                "fechaExpiracion": "2025-10-29",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        },
-        {
-                "id": 91,
-                "contratante": "DESINELEC / ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "PASEO SHOPPING SANTO DOMINGO",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "185055",
-                "montoCobertura": 320490.29,
-                "prima": 2670.75,
-                "fechaInicio": "2025-05-27",
-                "fechaExpiracion": "2025-10-24",
-                "diasRestantes": 0,
-                "diasTotales": 150
-        },
-        {
-                "id": 92,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO VIAL UNO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 524254.42,
-                "prima": 387.8,
-                "fechaInicio": "2025-08-29",
-                "fechaExpiracion": "2025-10-28",
-                "diasRestantes": 0,
-                "diasTotales": 60
-        },
-        {
-                "id": 93,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76208",
-                "montoCobertura": 1952644.49,
-                "prima": 3562.2,
-                "fechaInicio": "2025-09-30",
-                "fechaExpiracion": "2025-10-30",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 94,
-                "contratante": "VIGERANO",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "55554",
-                "montoCobertura": 59563.62,
-                "prima": 327.45,
-                "fechaInicio": "2025-10-24",
-                "fechaExpiracion": "2026-03-31",
-                "diasRestantes": 57,
-                "diasTotales": 158
-        },
-        {
-                "id": 95,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "74238",
-                "montoCobertura": 2817595.02,
-                "prima": 2084.25,
-                "fechaInicio": "2025-05-05",
-                "fechaExpiracion": "2025-11-01",
-                "diasRestantes": 0,
-                "diasTotales": 180
-        },
-        {
-                "id": 96,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76208",
-                "montoCobertura": 1952644.49,
-                "prima": 2888.84,
-                "fechaInicio": "2025-10-30",
-                "fechaExpiracion": "2025-11-30",
-                "diasRestantes": 0,
-                "diasTotales": 31
-        },
-        {
-                "id": 97,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "UNIDAD EDUCATIVA CARDENAL SPELLMAN",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "75401",
-                "montoCobertura": 122060.41,
-                "prima": 270.87,
-                "fechaInicio": "2025-10-29",
-                "fechaExpiracion": "2025-11-28",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 98,
-                "contratante": "ETINAR",
-                "tipoFianza": "SERIEDAD DE OFERTA",
-                "proyecto": "ESPOL",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "106635",
-                "montoCobertura": 150000.0,
-                "prima": 600.0,
-                "fechaInicio": "",
-                "fechaExpiracion": "2025-11-13",
-                "diasRestantes": 0,
-                "diasTotales": 0
-        },
-        {
-                "id": 99,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO VIAL UNO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "76536",
-                "montoCobertura": 524254.42,
-                "prima": 387.8,
-                "fechaInicio": "2025-10-28",
-                "fechaExpiracion": "2025-11-27",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 100,
-                "contratante": "ETINAR",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "FIDEICOMISO MERCANTIL REITS PINK EL BUIJO",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "50403",
-                "montoCobertura": 27641610.9,
-                "prima": 21454.91,
-                "fechaInicio": "2025-08-31",
-                "fechaExpiracion": "2025-11-30",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 101,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "74238",
-                "montoCobertura": 2817595.02,
-                "prima": 2084.25,
-                "fechaInicio": "2025-11-01",
-                "fechaExpiracion": "2025-12-01",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 102,
-                "contratante": "VIGERANO",
-                "tipoFianza": "TODO RIESGO CONSTRUCCION",
-                "proyecto": "TERRANOSTRA GRANOLLER",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "220454",
-                "montoCobertura": 1028498.0,
-                "prima": 2032.22,
-                "fechaInicio": "2025-09-30",
-                "fechaExpiracion": "2025-12-30",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 103,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "UNIDAD EDUCATIVA CARDENAL SPELLMAN",
-                "aseguradora": "EQUISUIZA",
-                "estado": "ACTIVA",
-                "numeroPoliza": "75401",
-                "montoCobertura": 122060.41,
-                "prima": 90.29,
-                "fechaInicio": "2025-11-28",
-                "fechaExpiracion": "2026-12-28",
-                "diasRestantes": 329,
-                "diasTotales": 395
-        },
-        {
-                "id": 104,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "NUCLEO DE SOLCA MACHALA",
-                "aseguradora": "EQUISUIZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "74238",
-                "montoCobertura": 2817595.02,
-                "prima": 2084.25,
-                "fechaInicio": "2025-12-01",
-                "fechaExpiracion": "2025-12-31",
-                "diasRestantes": 0,
-                "diasTotales": 30
-        },
-        {
-                "id": 105,
-                "contratante": "ETINAR",
-                "tipoFianza": "FIEL CUMPLIMIENTO DE CONTRATO",
-                "proyecto": "AGORA CIUDAD MEDICA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "499485",
-                "montoCobertura": 816857.56,
-                "prima": 2042.14,
-                "fechaInicio": "2025-09-08",
-                "fechaExpiracion": "2025-12-08",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 106,
-                "contratante": "ETINAR",
-                "tipoFianza": "BUEN USO DE ANTICIPO",
-                "proyecto": "AGORA CIUDAD MEDICA",
-                "aseguradora": "CONFIANZA",
-                "estado": "VENCIDA",
-                "numeroPoliza": "465225",
-                "montoCobertura": 500000.0,
-                "prima": 1250.0,
-                "fechaInicio": "2025-09-08",
-                "fechaExpiracion": "2025-12-08",
-                "diasRestantes": 0,
-                "diasTotales": 91
-        },
-        {
-                "id": 107,
-                "contratante": "ETINAR",
-                "tipoFianza": "RESPONSABILIDAD CIVIL",
-                "proyecto": "GALERIAS TERRANOSTRA",
-                "aseguradora": "CHUBB",
-                "estado": "VENCIDA",
-                "numeroPoliza": "377874",
-                "montoCobertura": 1461876.0,
-                "prima": 2000.0,
-                "fechaInicio": "2025-09-12",
-                "fechaExpiracion": "2025-12-11",
-                "diasRestantes": 0,
-                "diasTotales": 90
-        }
-];
-    </script>
+function exportData(){
+const csv=[['Póliza','Contratante','Tipo','Proyecto','Aseguradora','Monto','Prima','Vencimiento','Días']];
+POLIZAS.forEach(p=>csv.push([p.numeroPoliza,p.contratante,p.tipoFianza,p.proyecto||'',p.aseguradora,p.montoCobertura,p.prima,p.fechaExpiracion,p.diasRestantes]));
+const content=csv.map(r=>r.join(',')).join('\n');
+const blob=new Blob([content],{type:'text/csv'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;
+a.download='polizas_etinar_'+new Date().toISOString().split('T')[0]+'.csv';
+a.click();
+}
+</script>
 </body>
 </html>
